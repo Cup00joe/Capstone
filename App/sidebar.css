@@ -38,10 +38,24 @@
     color: #000000; /* 悬停时文字颜色 */
   }
   
-  .logout-button.pressed {
-    background-color: #0056b3; /* 按下时背景颜色 */
+  .logon-button {
+    padding: 10px; /* 与其他按钮相同的内边距 */
+    border: none; /* 与其他按钮相同的边框 */
+    border-radius: 5px; /* 与其他按钮相同的圆角 */
+    font-size: 16px; /* 与其他按钮相同的字体大小 */
+    font-family: Helvetica, sans-serif; /* 选择一个更圆润的字体 */
+    background-color: #000000; /* 与其他按钮相同的背景颜色 */
+    color: #ffd900; /* 与其他按钮相同的文字颜色 */
+    cursor: pointer; /* 设置鼠标指针为手型 */
+    transition: background-color 0.3s ease, color 0.3s ease; /* 设置过渡效果 */
+    text-align: center; /* 文字居中 */
   }
   
+  .logon-button:hover {
+    background-color: #ffd900; /* 悬停时背景颜色 */
+    color: #000000; /* 悬停时文字颜色 */
+  }
+
   /* 将折叠动画应用于菜单栏 */
   .sidebar {
     width: 200px;
