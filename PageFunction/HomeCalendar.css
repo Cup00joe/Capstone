@@ -1,0 +1,112 @@
+/* 日历容器样式 */
+.calendar-container {
+    margin-left: auto;
+    margin-right: -200px; 
+  }
+  
+  .calendar-table {
+    border-collapse: collapse;
+  }
+  
+  .calendar-table th,
+  .calendar-table td {
+    border: 1px solid #000;
+    padding: 5px;
+  }
+  
+  .calendar-table th {
+    background-color: #f0f0f0;
+  }
+  
+  .calendar-button {
+    width: 40px; /* 设置按钮宽度 */
+    height: 40px; /* 设置按钮高度 */
+    border: none; /* 移除按钮边框 */
+    background-color: #ffffff; /* 设置按钮背景颜色为透明 */
+    cursor: pointer; /* 设置鼠标指针为手型 */
+    font-size: 16px; /* 设置按钮内文字的字体大小 */
+    font-weight: bold;
+  }
+  
+  .calendar-container table {
+    width: 100%; /* 让表格占满父元素的宽度 */
+    border-collapse: collapse; /* 合并边框 */
+  }
+  
+  .calendar-container th,
+  .calendar-container td {
+    width: 40px; /* 设置表格单元格宽度 */
+    height: 40px; /* 设置表格单元格高度 */
+    text-align: center; /* 文字居中 */
+    border: 2px solid #000000; /* 添加边框 */
+  }
+  
+  .calendar-container th {
+    background-color: #aad6e7; /* 设置表头背景颜色 */
+  }
+  
+  /* 非当前月份的日期样式 */
+  .not-this-month {
+    background-color: #4d4d4d; /* 设置非当前月份日期的背景颜色 */
+  }
+  
+  /* 当日日期背景色 */
+  .calendar-button.today {
+    background-color: #348adb; /* 浅蓝色 */
+  }
+  
+  /* 已经过去的日期背景色变深 */
+  .calendar-button.before-today {
+    background-color: #c0c0c0; /* 变深的颜色 */
+  }
+  
+  /* 过去且非本月日期的样式 */
+  .not-this-month.before-today {
+    background-color: #4d4d4d; /* 设置过去且非本月日期的背景颜色 */
+  }
+  
+  .calendar-button:hover {
+    background-color: rgb(1, 107, 143);
+  }
+  
+  
+  
+  .popup {
+    position: absolute;
+    top: 50%;
+    left: 350px;
+    transform: translate(-50%, -50%);
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #fff;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 10px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
+  }
+  
+  .popup.show {
+    opacity: 1;
+  }
+  
+  .popup-content {
+    position: relative;
+  }
+  
+  .close-btn {
+    position: absolute;
+    top: -23px;
+    right: -5px;
+    background-color: rgba(255, 0, 0, 0.5);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+  }
+  
+  .close-btn:hover {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5); /* 鼠标悬停时的阴影效果 */
+    background-color: rgb(255, 0, 0);
+  }
