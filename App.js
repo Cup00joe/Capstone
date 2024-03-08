@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import Sidebar from './App/sidebar';
-import RenderCalendar from './App/HomeCalendar';
-import Settings from './App/settings';
+import Sidebar from './PageFunction/sidebar';
+import RenderCalendar from './PageFunction/HomeCalendar';
+import Settings from './PageFunction/register';
 import moment from 'moment-timezone';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
 
@@ -10,7 +10,6 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // State to manage user login status
   const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(false); // State to manage Google login status
   const [page, setPage] = useState('Home'); // State to manage current page
-  const [searchQuery, setSearchQuery] = useState(''); // State to manage search query input
 
   const session = useSession(); // Get session information using auth-helpers-react
   const supabase = useSupabaseClient(); // Get Supabase client object
@@ -31,7 +30,9 @@ function App() {
     }
 }, [session]);
 
-  
+useEffect(() => {
+  console.log('Login status changed(App):', isLoggedIn);
+}, [isLoggedIn]);
 
   async function googleSignIn() {
     const { error } = await supabase.auth.signInWithOAuth({
@@ -68,7 +69,7 @@ const handleUsernameChange = (username) => {
   return (
     <div className="App">
       {/* Pass isLoggedIn state and handling methods to Sidebar component */}
-      <Sidebar isLoggedIn={isLoggedIn} setPage={setPage} handleUsernameChange={handleUsernameChange}/>
+      <Sidebar isLoggedIn={isLoggedIn} setPage={setPage}/>
       
       {/* Render content based on page state */}
       <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
