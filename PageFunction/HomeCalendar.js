@@ -1,21 +1,25 @@
-import React, { useState } from 'react';
-import moment from 'moment';
+import React, { useState, useEffect } from 'react';
+import moment from 'moment-timezone';
 import classNames from 'classnames';
 import './HomeCalendar.css';
+import { useSession } from '@supabase/auth-helpers-react';
+import GoogleCalendarEvents from './GoogleCalendarEvents';
 
-function RenderCalendar() {
-    const today = moment();
-    const startOfMonth = today.clone().startOf('month');
-    const endOfMonth = today.clone().endOf('month');
+function RenderCalendar({ onDateSelect }) {
+    const [currentMonth, setCurrentMonth] = useState(moment());
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(moment());
+    const session = useSession();
+
+    const startOfMonth = currentMonth.clone().startOf('month');
+    const endOfMonth = currentMonth.clone().endOf('month');
     const startOfWeek = startOfMonth.clone().startOf('week');
     const endOfWeek = endOfMonth.clone().endOf('week');
-
-    const [showPopup, setShowPopup] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
 
     const handleDateClick = (date) => {
         setSelectedDate(date.clone());
         setShowPopup(true);
+        onDateSelect(date);
     };
 
     const handleClosePopup = () => {
@@ -23,14 +27,13 @@ function RenderCalendar() {
     };
 
     const calendar = [];
-
     let currentDay = startOfWeek.clone();
 
     while (currentDay.isSameOrBefore(endOfWeek, 'day')) {
         const buttonClassName = classNames('calendar-button', {
-            'not-this-month': !currentDay.isSame(today, 'month'),
-            'before-today': currentDay.isBefore(today, 'day'),
-            'today': currentDay.isSame(today, 'day')
+            'not-this-month': !currentDay.isSame(currentMonth, 'month'),
+            'before-today': currentDay.isBefore(moment(), 'day'),
+            'today': currentDay.isSame(moment(), 'day')
         });
 
         calendar.push({
@@ -49,12 +52,25 @@ function RenderCalendar() {
         currentDay.add(1, 'day');
     }
 
+    const goToPreviousMonth = () => {
+        setCurrentMonth(prevMonth => prevMonth.clone().subtract(1, 'month'));
+    };
+
+    const goToNextMonth = () => {
+        setCurrentMonth(prevMonth => prevMonth.clone().add(1, 'month'));
+    };
+    
     return (
         <div className="calendar-container">
+            <div className="calendar-header"></div>
             <table>
                 <thead>
                     <tr>
-                        <th colSpan="7">{startOfMonth.format('MMMM YYYY')}</th>
+                        <th colSpan="7">
+                            <button onClick={goToPreviousMonth}>🢀</button>
+                            {currentMonth.format('MMMM YYYY')}
+                            <button onClick={goToNextMonth}>🢂</button>
+                        </th>
                     </tr>
                     <tr>
                         <th>SUN</th>
@@ -83,7 +99,9 @@ function RenderCalendar() {
             <div className={`popup${showPopup ? ' show' : ''}`}>
                 <div className="popup-content">
                     <p>Selected Date: {selectedDate && selectedDate.format('YYYY-MM-DD')}</p>
+                    <p>------------------------------------</p>
                     <button className="close-btn" onClick={handleClosePopup}>X</button>
+                    <GoogleCalendarEvents selectedDate={selectedDate} />
                 </div>
             </div>
         </div>

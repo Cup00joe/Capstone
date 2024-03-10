@@ -1,7 +1,7 @@
 import { supabase } from '../supabase.js'; // 调整路径以匹配您的实际设置
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import './Login.css'; // 根据您的实际设置调整路径
-import test from '../picture/10x10test.png';
+import test from '../picture/Login.png';
 
 function Login({ onSuccess }) {
     const [username, setUsername] = useState('');
