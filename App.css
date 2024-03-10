@@ -47,3 +47,37 @@ body {
 .App-link {
   color: #61dafb;
 }
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-parent-container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+
+/* 在地址输入组件和 Wooster 时间组件的父容器中使用 flex 布局，并右对齐 */
+.address-wooster-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-left: 80px; /* 添加额外的右边距 */
+  flex-direction: column;
+  align-items: center;
+}
+
+.google-signin-button {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+
