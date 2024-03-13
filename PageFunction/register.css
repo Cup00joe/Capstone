@@ -84,13 +84,8 @@
   transition: background-color 0.3s ease;
 }
 
-.register-form button:hover {
-  background-color: #0056b3;
-}
-
 .register-button,
-.edit-button,
-.delete-button {
+.edit-button {
   padding: 8px 16px;
   background-color: #007bff;
   color: #ffffff;
@@ -102,9 +97,23 @@
 }
 
 .register-button:hover,
-.edit-button:hover,
+.edit-button:hover {
+  background-color: #004085;
+}
+
+.delete-button {
+  padding: 8px 16px;
+  background-color: #bb1600;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: background-color 0.3s ease;
+}
+
 .delete-button:hover {
-  background-color: #0056b3;
+  background-color: #810f00;
 }
 
 .register-container {
