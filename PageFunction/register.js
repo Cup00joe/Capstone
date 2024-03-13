@@ -187,7 +187,6 @@ function Register({ setPage }) {
           <thead>
             <tr>
               <th>Username</th>
-              <th>Password</th>
               <th>Email</th>
               <th>Scope</th>
               <th>Edit</th>
@@ -198,7 +197,6 @@ function Register({ setPage }) {
             {loginData.map((login, index) => (
               <tr key={index}>
                 <td>{login.name}</td>
-                <td>{login.pin}</td>
                 <td>{login.email}</td>
                 <td>{login.scope}</td>
                 <td>
