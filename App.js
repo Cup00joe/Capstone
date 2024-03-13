@@ -11,7 +11,7 @@ import AddressInput from './PageFunction/Address'; // 导入 AddressInput 组件
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(false);
-  const [page, setPage] = useState('Home');
+  const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home'); // 从本地存储中获取当前页面状态，默认为 'Home'
   const [coordinates, setCoordinates] = useState('');
   const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD')); // 默认为当天日期
 
@@ -19,43 +19,56 @@ function App() {
   const supabase = useSupabaseClient();
 
   useEffect(() => {
-    const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    setIsLoggedIn(storedIsLoggedIn);
+  const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  setIsLoggedIn(storedIsLoggedIn);
 
-    const storedGoogleLoggedIn = localStorage.getItem('isGoogleLoggedIn') === 'true';
-    setIsGoogleLoggedIn(storedGoogleLoggedIn);
+  // 检查谷歌登录状态
+  if (session?.user?.id) {
+    setIsGoogleLoggedIn(true);
+    console.log('Google is logged in');
+  } else {
+    setIsGoogleLoggedIn(false);
+    console.log('Google is not logged in');
+  }
 
-    if (session?.provider_token) {
-      setIsGoogleLoggedIn(true);
-      console.log('Google is logged in');
-    } else {
-      console.log('Google is not logged in');
-    }
-  }, [session]);
+  // 检查本地存储中的谷歌登录状态
+  const storedGoogleLoggedIn = localStorage.getItem('isGoogleLoggedIn') === 'true';
+  setIsGoogleLoggedIn(storedGoogleLoggedIn);
+
+  // 检查本地存储中的当前页面状态
+  const storedPage = localStorage.getItem('currentPage') || 'Home';
+  setPage(storedPage);
+}, [session, setPage]);
+
 
   useEffect(() => {
     console.log('Login status changed(App):', isLoggedIn);
   }, [isLoggedIn]);
 
   async function googleSignIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        scopes: 'https://www.googleapis.com/auth/calendar'
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          scopes: 'https://www.googleapis.com/auth/calendar'
+        }
+      });
+      if (error) {
+        throw new Error(error.message); // 抛出错误以处理登录失败
+      } else {
+        setIsGoogleLoggedIn(true);
+        setIsLoggedIn(true); // 在谷歌登录成功后设置为已登录状态
+        localStorage.setItem('isGoogleLoggedIn', 'true');
       }
-    });
-    if (error) {
-      alert("Error logging in to Google provider with Supabase");
+    } catch (error) {
+      alert("Error logging in to Google provider with Supabase: " + error.message); // 提示用户登录失败
       console.log(error);
-    } else {
-      setIsGoogleLoggedIn(true);
-      localStorage.setItem('isGoogleLoggedIn', 'true');
     }
-  };
+  }
 
   async function googlesignOut() {
     await supabase.auth.signOut();
-    setIsLoggedIn(false);
+    setIsLoggedIn(false); // 添加这行代码
     setIsGoogleLoggedIn(false);
     localStorage.removeItem('isGoogleLoggedIn');
     window.location.reload();
@@ -84,7 +97,7 @@ function App() {
                 {page === 'Settings' && (
                   <div className="settings-container">
                     <h2>Settings</h2>
-                    <Register username/>
+                    <Register setPage={setPage} />
                   </div>
                 )}
                 {page === 'Customer Information Input' && (
