@@ -58,6 +58,7 @@
 
   /* 将折叠动画应用于菜单栏 */
   .sidebar {
+    z-index: 9999; 
     width: 200px;
     height: 100vh; /* 设置菜单栏的高度与视口高度相同 */
     background-color: #74a4d4;

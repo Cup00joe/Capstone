@@ -10,11 +10,11 @@ import Login from './Login';
 
 function Sidebar({ setPage }) {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
-  const [collapsed, setCollapsed] = useState(false); // 默认为false，您可以根据实际情况修改
+  const [collapsed, setCollapsed] = useState(true); // 默认为false，您可以根据实际情况修改
   const sidebarRef = useRef(null);
-  const [username, setUsername] = useState(''); // 添加用户名状态
+  const [username, setUsername] = useState(localStorage.getItem('username') || ''); // 从本地存储中获取用户名状态
   const [currentPage, setCurrentPage] = useState(localStorage.getItem('currentPage') || ''); // 从本地存储中获取当前页面状态
-
+  
   useEffect(() => {
     // 更新本地存储的登录状态
     localStorage.setItem('isLoggedIn', isLoggedIn);
@@ -32,6 +32,8 @@ function Sidebar({ setPage }) {
     setIsLoggedIn(false); // 更新登录状态为false
     window.location.reload();
     localStorage.removeItem('isLoggedIn'); // 从本地存储中移除登录状态
+    localStorage.removeItem('username'); // 从本地存储中移除用户名
+    localStorage.removeItem('currentPage'); // 从本地存储中移除当前页面
     setUsername(''); // 清空用户名
     setCurrentPage(''); // 清空当前页面
   };
@@ -40,20 +42,27 @@ function Sidebar({ setPage }) {
     setPage(pageName);
     setCurrentPage(pageName);
     setCollapsed(false);
+  
+    // 更新本地存储中的 currentPage 值
+    localStorage.setItem('currentPage', pageName);
   };
 
   const [isLoginSuccessVisible, setIsLoginSuccessVisible] = useState(false);
 
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (username) => {
     setIsLoggedIn(true);
     setIsLoginSuccessVisible(true); // 登录成功时显示登录成功浮窗
+    setUsername(username); // 设置用户名
+    console.log('Logged in as:', username); // 打印用户名到控制台
+    localStorage.setItem('isLoggedIn', true);
+    localStorage.setItem('username', username); // 将用户名存储在本地存储中
+    localStorage.setItem('currentPage', 'Home');
     setTimeout(() => {
       setIsLoginSuccessVisible(false);
       window.location.reload();
     }, 2000);
-    localStorage.setItem('isLoggedIn', true);
-    localStorage.setItem('currentPage', 'Home');
   };
+  
 
   return (
     <div>
