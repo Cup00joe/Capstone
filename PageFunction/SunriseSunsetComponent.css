@@ -1,0 +1,26 @@
+.sunrise-sunset-container {
+  margin-top: 20px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.sunrise-sunset-info {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.sunrise-time, .sunset-time {
+  font-weight: bold;
+}
+
+.loading-message {
+  font-style: italic;
+}
+
+.sunrise-sunset-info .sunrise-time,
+.sunrise-sunset-info .sunset-time {
+  color: rgb(0, 0, 0); /* 或者您想要的任何其他颜色 */
+  font-size: 20px; /* 修改为您想要的字体大小 */
+}
