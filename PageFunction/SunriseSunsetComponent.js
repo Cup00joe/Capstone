@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import './SunriseSunsetComponent.css'; // 导入样式文件
+import Sunrise from '../picture/Sunrise.png';
 
 function SunriseSunsetComponent({ coordinates, selectedDate }) {
     const [sunriseSunsetInfo, setSunriseSunsetInfo] = useState(null);
@@ -38,6 +39,7 @@ function SunriseSunsetComponent({ coordinates, selectedDate }) {
 
     return (
         <div className="sunrise-sunset-container">
+            <img src={Sunrise} alt="Sunrise" />
             {sunriseSunsetInfo ? (
                 <div className="sunrise-sunset-info">
                     <p className="sunrise-time">Sunrise: {sunriseSunsetInfo.sunrise}</p>
