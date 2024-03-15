@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './Address.css'; // 导入样式文件
+import './SunriseSunset&AddressComponent.css'; // 导入样式文件
 import Address from '../picture/address.png';
 
 const AddressInput = ({ onAddressSubmit }) => {

@@ -9,7 +9,7 @@ import Calendar from '../picture/Calendar.png';
 function RenderCalendar({ onDateSelect }) {
     const [currentMonth, setCurrentMonth] = useState(moment());
     const [showPopup, setShowPopup] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(moment());
+    const [selectedDate, setSelectedDate] = useState(null); // Change to single variable
     const session = useSession();
 
     const startOfMonth = currentMonth.clone().startOf('month');
@@ -18,9 +18,8 @@ function RenderCalendar({ onDateSelect }) {
     const endOfWeek = endOfMonth.clone().endOf('week');
 
     const handleDateClick = (date) => {
-        setSelectedDate(date.clone());
-        setShowPopup(true);
-        onDateSelect(date);
+        setSelectedDate(date); // Update selectedDate directly
+        setShowPopup(true); // Show the popup
     };
 
     const handleClosePopup = () => {
@@ -34,7 +33,8 @@ function RenderCalendar({ onDateSelect }) {
         const buttonClassName = classNames('calendar-button', {
             'not-this-month': !currentDay.isSame(currentMonth, 'month'),
             'before-today': currentDay.isBefore(moment(), 'day'),
-            'today': currentDay.isSame(moment(), 'day')
+            'today': currentDay.isSame(moment(), 'day'),
+            'selected': selectedDate && selectedDate.isSame(currentDay, 'day')
         });
 
         calendar.push({
@@ -99,14 +99,15 @@ function RenderCalendar({ onDateSelect }) {
                     ))}
                 </tbody>
             </table>
-            <div className={`popup${showPopup ? ' show' : ''}`}>
+            {showPopup && (
                 <div className="popup-content">
-                    <p>Selected Date: {selectedDate && selectedDate.format('YYYY-MM-DD')}</p>
-                    <p>------------------------------------</p>
-                    <button className="close-btn" onClick={handleClosePopup}>X</button>
-                    <GoogleCalendarEvents selectedDate={selectedDate} />
+                    <div class="popup-content-wrapper">
+                        <p>Selected Date: {selectedDate.format('YYYY-MM-DD')}</p>
+                        <p>------------------------------------</p>
+                        <GoogleCalendarEvents selectedDate={selectedDate} />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

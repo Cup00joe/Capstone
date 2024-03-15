@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
-import './SunriseSunsetComponent.css'; // 导入样式文件
 import Sunrise from '../picture/Sunrise.png';
+import './SunriseSunset&AddressComponent.css';
 
 function SunriseSunsetComponent({ coordinates, selectedDate }) {
     const [sunriseSunsetInfo, setSunriseSunsetInfo] = useState(null);
