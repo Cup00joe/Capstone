@@ -6,40 +6,35 @@ import Register from './PageFunction/register';
 import SunriseSunsetComponent from './PageFunction/SunriseSunsetComponent';
 import moment from 'moment-timezone';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import AddressInput from './PageFunction/Address'; // 导入 AddressInput 组件
+import AddressInput from './PageFunction/Address'; 
+import Google from './picture/Google.png';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(false);
-  const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home'); // 从本地存储中获取当前页面状态，默认为 'Home'
+  const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home'); 
   const [coordinates, setCoordinates] = useState('');
-  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD')); // 默认为当天日期
+  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
 
   const session = useSession();
   const supabase = useSupabaseClient();
 
   useEffect(() => {
-  const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-  setIsLoggedIn(storedIsLoggedIn);
+    const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    setIsLoggedIn(storedIsLoggedIn);
 
-  // 检查谷歌登录状态
-  if (session?.user?.id) {
-    setIsGoogleLoggedIn(true);
-    console.log('Google is logged in');
-  } else {
-    setIsGoogleLoggedIn(false);
-    console.log('Google is not logged in');
-  }
+    if (session?.user?.id) {
+      setIsGoogleLoggedIn(true);
+    } else {
+      setIsGoogleLoggedIn(false);
+    }
 
-  // 检查本地存储中的谷歌登录状态
-  const storedGoogleLoggedIn = localStorage.getItem('isGoogleLoggedIn') === 'true';
-  setIsGoogleLoggedIn(storedGoogleLoggedIn);
+    const storedGoogleLoggedIn = localStorage.getItem('isGoogleLoggedIn') === 'true';
+    setIsGoogleLoggedIn(storedGoogleLoggedIn);
 
-  // 检查本地存储中的当前页面状态
-  const storedPage = localStorage.getItem('currentPage') || 'Home';
-  setPage(storedPage);
-}, [session, setPage]);
-
+    const storedPage = localStorage.getItem('currentPage') || 'Home';
+    setPage(storedPage);
+  }, [session, setPage]);
 
   useEffect(() => {
     console.log('Login status changed(App):', isLoggedIn);
@@ -54,42 +49,38 @@ function App() {
         }
       });
       if (error) {
-        throw new Error(error.message); // 抛出错误以处理登录失败
+        throw new Error(error.message);
       } else {
         setIsGoogleLoggedIn(true);
-        setIsLoggedIn(true); // 在谷歌登录成功后设置为已登录状态
+        setIsLoggedIn(true);
         localStorage.setItem('isGoogleLoggedIn', 'true');
       }
     } catch (error) {
-      alert("Error logging in to Google provider with Supabase: " + error.message); // 提示用户登录失败
+      alert("Error logging in to Google provider with Supabase: " + error.message);
       console.log(error);
     }
   }
 
   async function googlesignOut() {
     await supabase.auth.signOut();
-    setIsLoggedIn(false); // 添加这行代码
+    setIsLoggedIn(false);
     setIsGoogleLoggedIn(false);
     localStorage.removeItem('isGoogleLoggedIn');
     window.location.reload();
   }
 
   const handleDateSelect = (date) => {
-    console.log('Selected date:', date.format('YYYY-MM-DD'));
     setSelectedDate(date.format('YYYY-MM-DD'));
   };
 
-  // 处理地址提交
   const handleAddressSubmit = (newCoords) => {
-    console.log('坐标:', newCoords); // 修正此处的变量名为 newCoords
     setCoordinates(newCoords);
   };
 
   return (
     <div className="App">
       <Sidebar isLoggedIn={isLoggedIn} setPage={setPage}/>
-
-      <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="main-content">
         {isLoggedIn ? (
           <>
             {isGoogleLoggedIn ? (
@@ -102,7 +93,7 @@ function App() {
                 )}
                 {page === 'Customer Information Input' && (
                   <div className="home-container">
-                    <h2>Welcome, !</h2>
+                    <h2>Welcome!</h2>
                     <p>{`Today is ${moment().format('YYYY-MM-DD')}`}</p>
                   </div>
                 )}
@@ -134,14 +125,16 @@ function App() {
             <button 
               onClick={isGoogleLoggedIn ? googlesignOut : googleSignIn} 
               className="google-signin-button"
-              style={{ backgroundColor: isGoogleLoggedIn ? 'green' : 'red' }}
+              style={{
+                backgroundImage: `linear-gradient(to right, ${isGoogleLoggedIn ? '#006400' : '#8B0000'}, ${isGoogleLoggedIn ? '#006400' : '#8B0000'})`,
+              }}
             >
-              {isGoogleLoggedIn ? 'Google Sign Out' : 'Google Sign In'}
+              <img src={Google} alt="Google" style={{ marginRight: '5px' }} />
+              <span style={{ verticalAlign: 'middle' }}>{isGoogleLoggedIn ? 'Google Sign Out' : 'Google Sign In'}</span>
             </button>
           </>
         ) : (
-          <div>
-          </div>
+          <div></div>
         )}
       </div>
     </div>
