@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import './HomeCalendar.css';
 import { useSession } from '@supabase/auth-helpers-react';
 import GoogleCalendarEvents from './GoogleCalendarEvents';
+import Calendar from '../picture/Calendar.png';
 
 function RenderCalendar({ onDateSelect }) {
     const [currentMonth, setCurrentMonth] = useState(moment());
@@ -62,14 +63,16 @@ function RenderCalendar({ onDateSelect }) {
     
     return (
         <div className="calendar-container">
-            <div className="calendar-header"></div>
             <table>
                 <thead>
                     <tr>
                         <th colSpan="7">
+                        <div className="calendar-header">
+                        <img src={Calendar} alt="Calendar" />
                             <button onClick={goToPreviousMonth}>🢀</button>
-                            {currentMonth.format('MMMM YYYY')}
+                            <span className="month"> {currentMonth.format('MMMM YYYY')}</span>
                             <button onClick={goToNextMonth}>🢂</button>
+                        </div>
                         </th>
                     </tr>
                     <tr>

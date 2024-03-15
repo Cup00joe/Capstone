@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Address.css'; // 导入样式文件
+import Address from '../picture/address.png';
 
 const AddressInput = ({ onAddressSubmit }) => {
   const [address, setAddress] = useState('');
@@ -32,7 +33,8 @@ const AddressInput = ({ onAddressSubmit }) => {
   return (
     <form className="address-form" onSubmit={handleSubmit}>
       <label className="address-label">
-        Address:   
+      <img src={Address} alt="address" />
+        <span style={{ fontSize: '24px' }}>Address:</span>
         <input className="address-input" type="text" placeholder="Enter your address" value={address} onChange={handleAddressChange} />
         <span style={{ fontSize: '14px' , color: 'red', }}>**Fuzzy addresses and renamed addresses may return incorrect times**</span>
       </label>
