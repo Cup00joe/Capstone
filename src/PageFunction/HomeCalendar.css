@@ -1,37 +1,37 @@
 /* 日历容器样式 */
 .calendar-container {
-  margin-left: 20%;
-  width: 75%; /* 添加右边距，与其他组件分开 */
-  position: relative;
-}
-  
-.calendar-table {
+  width: 65%; /* 添加右边距，与其他组件分开 */
+  height: 300px;
   border-collapse: collapse;
 }
-  
-.calendar-table th,
-.calendar-table td {
-  border: 1px solid #000;
-  padding: 5px;
+
+.calendar-table {
+  height: 100%;
 }
   
-.calendar-table th {
-  background-color: #f0f0f0;
+.calendar-container th,
+.calendar-table td {
+  padding: 0;
+}
+
+.calendar-table tr {
+  height: 20%;
 }
   
 .calendar-button {
-  width: 40px; /* 设置按钮宽度 */
-  height: 40px; /* 设置按钮高度 */
+  width: 100%; /* 设置按钮宽度 */
+  height: 100%; /* 设置按钮高度 */
   border: none; /* 移除按钮边框 */
-  background-color: #ffffff; /* 设置按钮背景颜色为透明 */
+  background-color: var(--theme-constant); /* 设置按钮背景颜色为透明 */
   cursor: pointer; /* 设置鼠标指针为手型 */
   font-size: 16px; /* 设置按钮内文字的字体大小 */
   font-weight: bold;
+  color: var(--theme-gray-1);
 }
   
 .calendar-container table {
   width: 100%; /* 让表格占满父元素的宽度 */
-  border-collapse: collapse; /* 合并边框 */
+  height: 100%;
 }
   
 .calendar-container th,
@@ -39,35 +39,36 @@
   width: 40px; /* 设置表格单元格宽度 */
   height: 40px; /* 设置表格单元格高度 */
   text-align: center; /* 文字居中 */
-  border: 2px solid #000000; /* 添加边框 */
 }
   
 .calendar-container th {
-  background-color: #aad6e7; /* 设置表头背景颜色 */
+  background-color: var(--theme-primary-5); /* 设置表头背景颜色 */
+  color: var(--theme-gray-2);
 }
   
 /* 非当前月份的日期样式 */
 .not-this-month {
-  background-color: #4d4d4d; /* 设置非当前月份日期的背景颜色 */
+  color: var(--theme-gray-3);
 }
   
 /* 当日日期背景色 */
 .calendar-button.today {
-  background-color: #348adb; /* 浅蓝色 */
+  background-color: var(--theme-primary-4); /* 浅蓝色 */
 }
   
 /* 已经过去的日期背景色变深 */
 .calendar-button.before-today {
-  background-color: #c0c0c0; /* 变深的颜色 */
 }
   
 /* 过去且非本月日期的样式 */
 .not-this-month.before-today {
-  background-color: #4d4d4d; /* 设置过去且非本月日期的背景颜色 */
 }
   
 .calendar-button:hover {
-  background-color: rgb(1, 107, 143);
+  background-color: var(--theme-primary-4to5);
+  color: var(--theme-constant-rev);
+  border: solid;
+  border-color: var(--theme-gray-4);
 }
 
 .calendar-container {
@@ -78,8 +79,20 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
   position: relative;
+  min-height: 50px;
+  height: 100%;
+  flex-wrap: wrap;
+}
+
+.calendar-header:after {
+
+  content: '';
+  flex: none;
+  margin: auto;
+  width: 95%;
+  background: var(--theme-primary-4to5);
+  height: 2px;
 }
 
 .calendar-header button {
@@ -88,8 +101,8 @@
   font-size: 24px;
   cursor: pointer;
   padding: 5px;
-  width: 40px; /* 设置宽度 */
-  height: 40px; /* 设置高度 */
+  width: 35px; /* 设置宽度 */
+  height: 30px; /* 设置高度 */
 }
 
 .calendar-header button:hover {
@@ -101,20 +114,29 @@
   margin: 10px 0; /* 分界线与周围内容的间距 */
 }
 
-.calendar-header img {
-  position: absolute;
-  left: 20%;
-  top: 30%; /* 调整图片的位置 */
+.calendar-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 78px;
+  height: 100%;
+  margin-right: 4%;
+  
+}
+
+.calendar-buttons button {
+  position: static;
 }
 
 .calendar-header button {
-  border: 1px solid black; /* 添加边框 */
+  border: none;
   border-radius: 5px; /* 设置圆角 */
   padding: 5px; /* 添加内边距 */
   display: flex; /* 使用 Flexbox 布局 */
   justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
-  background-color: white; /* 默认背景色为白色 */
+  color: var(--theme-gray-1);
+  background-color: var(--theme-constant);
 }
 
 .calendar-header button:hover {
@@ -123,26 +145,6 @@
 
 .month {
   font-size: 24px; /* 设置字体大小 */
-  margin-top: 10px; /* 向下偏移 5 像素 */
+  margin: 0 0 0 4%;
+  color: var(--theme-gray-1);
 }
-
-.popup-content {
-  position: absolute;
-  top: 0; /* 将popup-content定位在日历表格底部 */
-  left: -300px;
-  width: 250px; /* 调整宽度以适应内容 */
-  background-color: white;
-  padding: 10px;
-  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-  z-index: 1; /* 确保popup-content在日历表格上方 */
-  border-radius: 5px; /* 添加圆角 */
-  z-index: 1; /* 确保popup-content在日历表格上方 */
-  border-radius: 5px; /* 添加圆角 */
-}
-
-.popup-content-wrapper {
-  overflow-y: auto; /* 垂直方向内容超出时显示滚动条 */
-  max-height: 300px; /* 设置最大高度，超出部分将显示滚动条 */
-  border-radius: 5px; /* 添加圆角 */
-}
-

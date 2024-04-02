@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import moment from 'moment-timezone';
 import { useSession } from '@supabase/auth-helpers-react';
 import './GoogleCalendarEvents.css';
+import Accordion from './Accordion';
 
-function GoogleCalendarEvents({ selectedDate }) {
+function GoogleCalendarEvents({ selectedDate, children }) {
     const [eventsOnSelectedDate, setEventsOnSelectedDate] = useState([]);
     const session = useSession();
     const [calendars, setCalendars] = useState([]);
@@ -11,6 +12,22 @@ function GoogleCalendarEvents({ selectedDate }) {
     const [selectedCalendarIds, setSelectedCalendarIds] = useState([]); // 定义选择的日历ID数组
     const [selectedCalendarNames, setSelectedCalendarNames] = useState([]); // 定义选择的日历名称数组
 
+    // Initialize selected calendars from previous use
+    useEffect(() => {
+
+        const update = localStorage.getItem("RestoreCalendars");
+        if (update === "true" && localStorage.getItem("selectedCalendars") !== null ) {
+            setSelectedCalendars(JSON.parse(localStorage.getItem("selectedCalendars")));
+            setSelectedCalendarIds(JSON.parse(localStorage.getItem("selectedCalendarIds")));
+            setSelectedCalendarNames(JSON.parse(localStorage.getItem("selectedCalendarNames")));
+
+            localStorage.removeItem("RestoreCalendars");
+        }
+    }, []);
+
+    useEffect(() => { 
+    }, [selectedCalendars, selectedCalendarIds, selectedCalendarNames])
+    
     useEffect(() => {
         async function fetchCalendars() {
             try {
@@ -31,6 +48,15 @@ function GoogleCalendarEvents({ selectedDate }) {
     }, [session]);
 
     useEffect(() => {
+
+        if (localStorage.getItem("RestoreCalendars") !== null) {
+            localStorage.setItem("selectedCalendars", JSON.stringify(selectedCalendars));
+            localStorage.setItem("selectedCalendarIds", JSON.stringify(selectedCalendarIds));
+            localStorage.setItem("selectedCalendarNames", JSON.stringify(selectedCalendarNames));
+        } else {
+            localStorage.setItem("RestoreCalendars", "true");
+        }
+
         async function fetchEventsOnSelectedDate() {
             if (!selectedDate || !session || !session.provider_token || selectedCalendarIds.length === 0) {
                 return;
@@ -73,7 +99,7 @@ function GoogleCalendarEvents({ selectedDate }) {
         }
 
         fetchEventsOnSelectedDate();
-    }, [selectedDate, session, selectedCalendarIds, selectedCalendarNames]);
+    }, [selectedDate, session, selectedCalendars, selectedCalendarIds, selectedCalendarNames]);
 
     const handleSelectCalendar = (calendarId, calendarName) => {
         if (!selectedCalendarIds.includes(calendarId)) {
@@ -86,6 +112,7 @@ function GoogleCalendarEvents({ selectedDate }) {
             setSelectedCalendarIds(updatedIds);
             setSelectedCalendarNames(updatedNames);
             setSelectedCalendars(updatedCalendars); // 更新selectedCalendars
+    
         } else {
             // Remove calendarName if already selected
             const updatedIds = selectedCalendarIds.filter(id => id !== calendarId);
@@ -97,15 +124,16 @@ function GoogleCalendarEvents({ selectedDate }) {
             setSelectedCalendarIds(updatedIds);
             setSelectedCalendarNames(updatedNames);
             setSelectedCalendars(updatedCalendars); // 更新selectedCalendars
+    
         }
     };
-    
 
     return (
-        <div className="events-list">
+        <>
+            <Accordion icon="Calendar">
             <div className="calendar-list">
                 <ul>
-                    {calendars.map(calendar => (
+                    {calendars.length > 0 ? calendars.map(calendar => (
                         <li key={calendar.id}>
                             <input
                                 type="checkbox"
@@ -115,24 +143,35 @@ function GoogleCalendarEvents({ selectedDate }) {
                             />
                             <label htmlFor={calendar.id}>{calendar.summary}</label>
                         </li>
-                    ))}
+                    )) : 
+                        <p>Google Access Token Expired -- Please sign into your Google Account again</p>
+                        /* Need to add refresh token functionality */
+                    }
                 </ul>
             </div>
-            <p>------------------------------------</p>
-            {selectedCalendars.length > 0 && (
+            </Accordion>
+            <div className="location-suntime-container">
+                { children }
+            </div>
+            <div className="event-container">
+            {selectedCalendars.length > 0 ? (
                 eventsOnSelectedDate.length > 0 ? (
                     eventsOnSelectedDate.map((event, index) => (
                         <div key={index} className="event">
-                            <span style={{ fontSize: '24px', fontWeight: 'bold' }}>{event.calendarName}: {event.summary}</span>
-                            <p>Start Time: {moment(event.start.dateTime).format('HH:mm')}</p>
-                            <p>End Time: {moment(event.end.dateTime).format('HH:mm')}</p>
+                            <div className="event-header">
+                                <h3 className="event-title">{event.summary}</h3>
+                                <p className="calendar-name">{event.calendarName}</p>
+                            </div>
                         </div>
                     ))
                 ) : (
-                    <div>No events found</div>
+                    <p>No events found</p>
                 )
+            ) : (
+                <p>No calendars enabled. Please select from "Your Calendars".</p>
             )}
-        </div>
+            </div>
+        </>
     );
 }
 

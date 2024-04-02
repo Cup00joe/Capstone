@@ -58,20 +58,18 @@
 
   /* 将折叠动画应用于菜单栏 */
   .sidebar {
-    z-index: 9999; 
     width: 200px;
     height: 100vh; /* 设置菜单栏的高度与视口高度相同 */
-    background-color: #74a4d4;
+    background-color: var(--theme-primary-5);
     padding: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     border-right: 0px solid #dee2e600;
-    border-radius: 20px;
     position: fixed;
     left: 0; /* 菜单栏在左侧 */
     top: 0; /* 菜单栏在顶部 */
-    z-index: 1000;
+    z-index: 9999;
   }
   
   /* 定义折叠和展开动画 */
@@ -155,7 +153,7 @@
     height: 40px; /* 按钮高度 */
     display: flex;
     align-items: center;
-    justify-content: center; /* 将内容居中 */
+    justify-content: start; /* 将内容居中 */
     margin-bottom: 10px; /* 底部外边距 */
     background-color: #ffffff; /* 背景色 */
     border: 0px solid #cccccc00; /* 边框 */

@@ -1,11 +1,9 @@
 /* GoogleCalendarEvents.css */
 
 .event {
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    background-color: #f0f8ff; /* 浅蓝色 */
+    padding: 5px 15px;
+    width: 88%;
+    background-color: var(--theme-constant);/* 浅蓝色 */
 }
 
 .select-calendar-button {
@@ -22,12 +20,6 @@
   .select-calendar-button:hover {
     background-color: #0056b3; /* 按钮悬停时的背景色 */
   }
-  
-
-
-.calendar-list {
-    margin-top: 20px;
-}
 
 .calendar-list h3 {
     font-size: 18px;
@@ -41,6 +33,16 @@
 
 .calendar-list li {
     margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.calendar-list label {
+    display: inline-block;
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .calendar-list button {
@@ -55,4 +57,49 @@
 
 .calendar-list button:hover {
     background-color: #d3e8ff; /* 淡蓝色 */
+}
+
+.location-suntime-container {
+    margin-top: 1%;
+    width: 100%;
+}
+
+.event-container {
+    margin-top: 3%;
+    display: flex;
+    flex-direction: column;
+    width: 96%;
+    max-height: 228px;
+    overflow-y: auto;
+}
+
+.event-container > .event:not(:last-child) {
+    margin-bottom: 2%;
+}
+
+
+.event-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.event h3 {
+    font-size: 1.2em;
+}
+
+.event-title {
+    max-width: 160px;
+    overflow-wrap: break-word;
+}
+
+.calendar-name {
+    font-size: 0.8em;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.event p, .event h3 {
+    margin: 0;
 }

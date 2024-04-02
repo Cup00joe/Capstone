@@ -2,28 +2,24 @@ import React, { useState, useEffect } from 'react';
 import moment from 'moment-timezone';
 import classNames from 'classnames';
 import './HomeCalendar.css';
+import './SearchBar.css';
 import { useSession } from '@supabase/auth-helpers-react';
-import GoogleCalendarEvents from './GoogleCalendarEvents';
-import Calendar from '../picture/Calendar.png';
 
-function RenderCalendar({ onDateSelect }) {
+function RenderCalendar({ selectedDate, onDateSelect }) {
     const [currentMonth, setCurrentMonth] = useState(moment());
-    const [showPopup, setShowPopup] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null); // Change to single variable
     const session = useSession();
 
     const startOfMonth = currentMonth.clone().startOf('month');
     const endOfMonth = currentMonth.clone().endOf('month');
     const startOfWeek = startOfMonth.clone().startOf('week');
-    const endOfWeek = endOfMonth.clone().endOf('week');
+    let endOfWeek = endOfMonth.clone().endOf('week');
+
+    while (endOfWeek.diff(startOfWeek, 'days') < 41) {
+        endOfWeek = endOfWeek.add(1, 'week');
+    }
 
     const handleDateClick = (date) => {
-        setSelectedDate(date); // Update selectedDate directly
-        setShowPopup(true); // Show the popup
-    };
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
+        onDateSelect(date); // Update selectedDate directly
     };
 
     const calendar = [];
@@ -45,14 +41,6 @@ function RenderCalendar({ onDateSelect }) {
         currentDay.add(1, 'day');
     }
 
-    while (currentDay.day() !== startOfWeek.day()) {
-        calendar.push({
-            date: currentDay.clone(),
-            buttonClassName: 'calendar-button'
-        });
-        currentDay.add(1, 'day');
-    }
-
     const goToPreviousMonth = () => {
         setCurrentMonth(prevMonth => prevMonth.clone().subtract(1, 'month'));
     };
@@ -62,16 +50,17 @@ function RenderCalendar({ onDateSelect }) {
     };
     
     return (
-        <div className="calendar-container">
-            <table>
+        <>
+            <table className="calendar-container">
                 <thead>
                     <tr>
                         <th colSpan="7">
                         <div className="calendar-header">
-                        <img src={Calendar} alt="Calendar" />
-                            <button onClick={goToPreviousMonth}>🢀</button>
-                            <span className="month"> {currentMonth.format('MMMM YYYY')}</span>
-                            <button onClick={goToNextMonth}>🢂</button>
+                            <h2 className="month"> {currentMonth.format('MMMM YYYY')}</h2>
+                            <div className="calendar-buttons">
+                                <button onClick={goToPreviousMonth} className="arrow-icon"><span className="arrow arrow-rev"></span></button>
+                                <button onClick={goToNextMonth} className="arrow-icon"><span className="arrow arrow"></span></button>
+                            </div>
                         </div>
                         </th>
                     </tr>
@@ -85,7 +74,7 @@ function RenderCalendar({ onDateSelect }) {
                         <th>SAT</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody className="calendar-table">
                     {calendar.reduce((rows, key, index) => (index % 7 === 0 ? rows.push([key]) : rows[rows.length - 1].push(key)) && rows, []).map((row, rowIndex) => (
                         <tr key={rowIndex}>
                             {row.map((day) => (
@@ -99,17 +88,8 @@ function RenderCalendar({ onDateSelect }) {
                     ))}
                 </tbody>
             </table>
-            {showPopup && (
-                <div className="popup-content">
-                    <div class="popup-content-wrapper">
-                        <p>Selected Date: {selectedDate.format('YYYY-MM-DD')}</p>
-                        <p>------------------------------------</p>
-                        <GoogleCalendarEvents selectedDate={selectedDate} />
-                    </div>
-                </div>
-            )}
-        </div>
-    );
+            </>
+            );
 }
 
 export default RenderCalendar;
