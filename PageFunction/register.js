@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabase'; // 根据你的实际路径进行调整
 import './register.css';
 
-function Register({ setPage }) {
+function Register() {
   const [name, setUsername] = useState(''); // 将注册的用户名作为独立的状态
   const [pin, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -16,7 +16,6 @@ function Register({ setPage }) {
   const [editingUser, setEditingUser] = useState('');
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editName, setEditName] = useState('');
-  const [editPin, setEditPin] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editScope, setEditPermission] = useState('');
 
@@ -218,9 +217,6 @@ function Register({ setPage }) {
             ))}
           </tbody>
         </table>
-      )}
-      {!owner && (
-        <p style={{ fontSize: '26px' }}>This account does not have management permissions.</p>
       )}
       {owner && ( // 只有 owner 为 true 时才显示注册按钮
         <button className="register-button" onClick={() => setShowRegisterPopup(true)}>Register</button>

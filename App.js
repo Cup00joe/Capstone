@@ -3,18 +3,24 @@ import './App.css';
 import Sidebar from './PageFunction/sidebar';
 import RenderCalendar from './PageFunction/HomeCalendar';
 import Register from './PageFunction/register';
+import ChangePIN from './PageFunction/changePIN';
 import SunriseSunsetComponent from './PageFunction/SunriseSunsetComponent';
 import moment from 'moment-timezone';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
-import AddressInput from './PageFunction/Address'; 
-import Google from './picture/Google.png';
+
+import PageTitle from './PageFunction/pageTitle';
+import Toggle from './PageFunction/Toggle';
+import GoogleCalendarEvents from './PageFunction/GoogleCalendarEvents';
+import Address from './PageFunction/Address';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(false);
-  const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home'); 
+  const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home');
+  const [selectedDate, setSelectedDate] = useState(moment()); // 默认为当天日期
+  const [selectedLocation, setSelectedLocation] = useState('');
   const [coordinates, setCoordinates] = useState('');
-  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
+  const [isDark, setDark] = useState(false);
 
   const session = useSession();
   const supabase = useSupabaseClient();
@@ -23,17 +29,32 @@ function App() {
     const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     setIsLoggedIn(storedIsLoggedIn);
 
-    if (session?.user?.id) {
-      setIsGoogleLoggedIn(true);
-    } else {
-      setIsGoogleLoggedIn(false);
-    }
-
     const storedGoogleLoggedIn = localStorage.getItem('isGoogleLoggedIn') === 'true';
     setIsGoogleLoggedIn(storedGoogleLoggedIn);
 
+    if (session?.provider_token) {
+      setIsGoogleLoggedIn(true);
+      console.log('Google is logged in');
+    } else {
+      if (isGoogleLoggedIn) {
+        console.log("LOGGED IN BUT TOKEN EXPIRED");
+      }
+      console.log('Google is not logged in');
+    }
+
+    const storedIsDark = localStorage.getItem('isDark') === 'true';
+    const storedIsLight = localStorage.getItem('isLight') === 'true';
+
+    if (storedIsDark || storedIsLight) {
+      setDark(storedIsDark);
+    } else {
+      const defaultDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      setDark(defaultDarkMode);
+    }
+
+    document.body.classList.add(isDark ? 'dark' : 'light');
     const storedPage = localStorage.getItem('currentPage') || 'Home';
-    setPage(storedPage);
+    setPage(storedPage);  
   }, [session, setPage]);
 
   useEffect(() => {
@@ -41,25 +62,21 @@ function App() {
   }, [isLoggedIn]);
 
   async function googleSignIn() {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          scopes: 'https://www.googleapis.com/auth/calendar'
-        }
-      });
-      if (error) {
-        throw new Error(error.message);
-      } else {
-        setIsGoogleLoggedIn(true);
-        setIsLoggedIn(true);
-        localStorage.setItem('isGoogleLoggedIn', 'true');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        scopes: 'https://www.googleapis.com/auth/calendar'
       }
-    } catch (error) {
-      alert("Error logging in to Google provider with Supabase: " + error.message);
+    });
+    if (error) {
+      alert("Error logging in to Google provider with Supabase");
       console.log(error);
+    } else {
+      setIsGoogleLoggedIn(true);
+      setIsLoggedIn(true);
+      localStorage.setItem('isGoogleLoggedIn', 'true');
     }
-  }
+  };
 
   async function googlesignOut() {
     await supabase.auth.signOut();
@@ -70,49 +87,67 @@ function App() {
   }
 
   const handleDateSelect = (date) => {
-    setSelectedDate(date.format('YYYY-MM-DD'));
+    console.log('Selected date:', date.format('YYYY-MM-DD'));
+    setSelectedDate(date);
   };
 
+  const handleDarkToggle = () => {
+    if (isDark) {
+      localStorage.removeItem('isDark');
+      localStorage.setItem('isLight', 'true');
+    } else {
+      localStorage.removeItem('isLight');
+      localStorage.setItem('isDark', 'true');
+    }
+
+    document.body.classList.remove(isDark ? 'dark' : 'light');
+    document.body.classList.add(isDark ? 'light' : 'dark');
+    setDark(!isDark);
+  }
+
+  // 处理地址提交
   const handleAddressSubmit = (newCoords) => {
-    setCoordinates(newCoords);
+      console.log('坐标:', newCoords); // 修正此处的变量名为 newCoords
+      setCoordinates(newCoords);
   };
 
   return (
     <div className="App">
       <Sidebar isLoggedIn={isLoggedIn} setPage={setPage}/>
-      <div className="main-content">
+
+      <div className="main-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         {isLoggedIn ? (
           <>
             {isGoogleLoggedIn ? (
               <>
+                {page === 'Home' ? (
+                  <div className="home-container">
+                    <PageTitle page={page}/>
+                    {/*<Accordion icon={"qbIcon"} status={"Online"}/>*/}
+                    <div className="calendar-parent-container">
+                        <RenderCalendar selectedDate={selectedDate} onDateSelect={handleDateSelect} />
+                        <div className="side-content-container">
+                          <GoogleCalendarEvents selectedDate={selectedDate}>
+                            <Address onAddressSubmit={handleAddressSubmit} setSelectedLocation={setSelectedLocation}/>
+                            <SunriseSunsetComponent coordinates={coordinates} selectedDate={selectedDate} selectedLocation={selectedLocation}/>
+                          </GoogleCalendarEvents>
+                        </div>
+                    </div>
+                  </div>
+                ) : (
+                  <PageTitle page={page}/>
+                )}
                 {page === 'Settings' && (
                   <div className="settings-container">
                     <h2>Settings</h2>
-                    <Register setPage={setPage} />
+                    <Register />
+                    <ChangePIN />
                   </div>
                 )}
                 {page === 'Customer Information Input' && (
                   <div className="home-container">
-                    <h2>Welcome!</h2>
+                    <h2>Welcome, !</h2>
                     <p>{`Today is ${moment().format('YYYY-MM-DD')}`}</p>
-                  </div>
-                )}
-                {page === 'Home' && (
-                  <div className="calendar-parent-container">
-                    <div className="calendar-container">
-                      <RenderCalendar onDateSelect={handleDateSelect} />
-                    </div>
-                    <div className="address-wooster-container">
-                      <div className="address-container">
-                        <AddressInput onAddressSubmit={handleAddressSubmit} />
-                      </div>
-                      <div className="wooster-time-container pointer-events-none">
-                        <SunriseSunsetComponent
-                          coordinates={coordinates}
-                          selectedDate={selectedDate}
-                        />
-                      </div>
-                    </div>
                   </div>
                 )}
               </>
@@ -122,16 +157,20 @@ function App() {
                 <button onClick={googleSignIn} className="logon-button">Google Sign In</button>
               </div>
             )}
-            <button 
-              onClick={isGoogleLoggedIn ? googlesignOut : googleSignIn} 
-              className="google-signin-button"
-              style={{
-                backgroundImage: `linear-gradient(to right, ${isGoogleLoggedIn ? '#006400' : '#8B0000'}, ${isGoogleLoggedIn ? '#006400' : '#8B0000'})`,
-              }}
-            >
-              <img src={Google} alt="Google" style={{ marginRight: '5px' }} />
-              <span style={{ verticalAlign: 'middle' }}>{isGoogleLoggedIn ? 'Google Sign Out' : 'Google Sign In'}</span>
-            </button>
+            <div className="account-container">
+              <button 
+                onClick={isGoogleLoggedIn ? googlesignOut : googleSignIn} 
+                className="google-signin-button"
+                style={{ backgroundColor: isGoogleLoggedIn ? 'green' : 'red' }}
+              >
+                {isGoogleLoggedIn ? 'Google Sign Out' : 'Google Sign In'}
+              </button>
+              <button
+                className="qb-signin-button">
+                  QuickBooks Sign In
+              </button>
+              <Toggle status={ isDark } method={ handleDarkToggle }/>
+            </div>
           </>
         ) : (
           <div></div>
