@@ -6,7 +6,7 @@ import './SunriseSunsetComponent.css';
 function SunriseSunsetComponent({ coordinates, selectedDate, selectedLocation, onSunriseSunsetTime }) {
     const [sunriseSunsetInfo, setSunriseSunsetInfo] = useState(null);
 
-    /*useEffect(() => {
+    useEffect(() => {
         console.log("Received coordinates:", coordinates);
         console.log("Received selectedDate:", selectedDate.format('YYYY-MM-DD'));
         const fetchData = async () => {
@@ -40,7 +40,7 @@ function SunriseSunsetComponent({ coordinates, selectedDate, selectedLocation, o
             }
         };
         fetchData();
-    }, [coordinates, selectedDate, onSunriseSunsetTime]);*/
+    }, [coordinates, selectedDate, onSunriseSunsetTime]);
 
     console.log(sunriseSunsetInfo);
     console.log("Props in SunriseSunsetComponent:", { coordinates, selectedDate, selectedLocation, onSunriseSunsetTime });
