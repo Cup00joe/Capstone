@@ -38,6 +38,15 @@ function ChangeEmailPassword() {
     // Function to handle changing email and password
     const handleChangeEmailPassword = async () => {
         try {
+            if (!newEmail) {
+                throw new Error('Email address cannot be empty.');
+              }
+            if (!newPassword) {
+                throw new Error('Password cannot be empty.');
+              }
+              if (!newWeight) {
+                throw new Error('Weight cannot be empty.');
+              }
             const usernameFromLocal = localStorage.getItem('username'); // Get username from local storage
             if (usernameFromLocal) {
                 // Update email and password in the database
@@ -92,7 +101,7 @@ function ChangeEmailPassword() {
                         />
                     </div>
                     {error && <div style={{ color: 'red' }}>{error}</div>} {/* Display error message if any */}
-                    {success && <div style={{ color: 'green' }}>Email and password changed successfully!</div>} {/* Display success message */}
+                    {success && <div style={{ color: 'green' }}>Successfully!</div>} {/* Display success message */}
                     <button onClick={handleChangeEmailPassword}>Change Email and Password</button>
                 </>
             )}
