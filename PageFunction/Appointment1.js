@@ -6,8 +6,8 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTimeChange, parentTime }) {
-    const [visibility, setVisibility] = useState(parentTime);
-    const [time, setTime] = useState('AM');
+    const [visibility, setVisibility] = useState('Public');
+    const [time, setTime] = useState(parentTime);
     const [searchCrew, setSearchCrew] = useState('');
     const [customerNames, setCustomerNames] = useState([]);
     const [visibilityOpen, setVisibilityOpen] = useState(false);
