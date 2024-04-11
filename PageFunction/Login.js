@@ -25,16 +25,16 @@ function Login({ onSuccess }) {
 
     try {
       ({ data: login, error } = await supabase
-        .from('login')
-        .select('name, pin')
-        .eq('name', username)
+        .from('Employee')
+        .select('Name, Pin')
+        .eq('Name', username)
         .single());
 
       if (error) {
         throw error;
       }
 
-      if (!login || login.pin !== password) {
+      if (!login || login.Pin !== password) {
         throw new Error('Incorrect username or password');
       }
 
@@ -45,6 +45,7 @@ function Login({ onSuccess }) {
     } catch (error) {
       if (!login) {
         setLoginErrorMessage('Incorrect username or password');
+        console.error(error.message);
       } else {
         setLoginErrorMessage(error.message);
       }

@@ -3,10 +3,11 @@ import { supabase } from '../supabase'; // 根据你的实际路径进行调整
 import './register.css';
 
 function Register() {
-  const [name, setUsername] = useState(''); // 将注册的用户名作为独立的状态
-  const [pin, setPassword] = useState('');
-  const [email, setEmail] = useState('');
-  const [scope, setPermission] = useState('');
+  const [Name, setUsername] = useState(''); // 将注册的用户名作为独立的状态
+  const [Pin, setPassword] = useState('');
+  const [Email, setEmail] = useState('');
+  const [Weight, setWeight] = useState('');
+  const [Scope, setPermission] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [owner, setOwner] = useState(false); // 添加 owner 状态
   const [loginData, setLoginData] = useState([]);
@@ -17,14 +18,14 @@ function Register() {
   const [showEditPopup, setShowEditPopup] = useState(false);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
-  const [editScope, setEditPermission] = useState('');
-
+  const [editWeight, setEditWeight] = useState('');
+ 
   // 提升 checkPermission 函数的定义
   const checkPermission = async (name) => { // 接受用户名作为参数
     try {
       // 查询所有用户的登录数据
       const { data: allLoginData, error } = await supabase
-        .from('login')
+        .from('Employee')
         .select('*');
 
       if (error) {
@@ -32,11 +33,11 @@ function Register() {
       }
 
       // 存储用户的权限信息
-      const login = allLoginData.find(user => user.name === name); // 查找当前登录用户的信息
-      if (login && login.scope) {
-        setPermission(login.scope);
+      const login = allLoginData.find(user => user.Name === name); // 查找当前登录用户的信息
+      if (login && login.Scope) {
+        setPermission(login.Scope);
 
-        if (login.scope !== 'owner') {
+        if (login.Scope !== 'owner') {
           // 如果用户权限不是 owner，则重定向到其他页面或者显示相应的提示信息
           console.log('Permission denied. Redirecting...');
           setOwner(false);
@@ -68,22 +69,28 @@ function Register() {
     return () => {
       mounted = false;
     };
-  }, [name]); // 使用 name 作为依赖项
+  }, [Name]); // 使用 name 作为依赖项
 
   const handleRegister = async (event) => {
     event.preventDefault();
 
     try {
       // 检查用户名和密码是否为空
-      if (!name || !pin) {
+      if (!Name || !Pin) {
         throw new Error('Username and password are required.');
+      }
+      if (!Email) {
+        throw new Error('Email address cannot be empty.');
+      }
+      if (!Weight) {
+        throw new Error('Missing weight information.');
       }
 
       // 在Supabase中插入注册信息到login表
       const { data, error } = await supabase
-        .from('login')
+        .from('Employee')
         .insert([
-          { name, pin, email}
+          { Name, Pin, Email, Weight}
         ])
         .select();
 
@@ -97,6 +104,7 @@ function Register() {
       setUsername('');
       setPassword('');
       setEmail('');
+      setWeight('');
       setPermission('');
       setErrorMessage('');
       // 关闭注册浮窗
@@ -114,9 +122,9 @@ function Register() {
     try {
       // 在Supabase中删除指定用户名的数据
       const { data, error } = await supabase
-        .from('login')
+        .from('Employee')
         .delete()
-        .eq('name', deletingUser);
+        .eq('Name', deletingUser);
 
       if (error) {
         throw error;
@@ -129,7 +137,7 @@ function Register() {
 
       // 刷新数据
       const { data: refreshedData, error: refreshError } = await supabase
-        .from('login')
+        .from('Employee')
         .select('*');
 
       if (refreshError) {
@@ -149,9 +157,9 @@ function Register() {
     try {
       // 在Supabase中更新指定用户名的数据
       const { data, error } = await supabase
-        .from('login')
-        .update({ name: editName, email: editEmail})
-        .eq('name', editingUser);
+        .from('Employee')
+        .update({ Name: editName, Email: editEmail, Weight:editWeight})
+        .eq('Name', editingUser);
 
       if (error) {
         throw error;
@@ -164,7 +172,7 @@ function Register() {
 
       // 刷新数据
       const { data: refreshedData, error: refreshError } = await supabase
-        .from('login')
+        .from('Employee')
         .select('*');
 
       if (refreshError) {
@@ -193,23 +201,23 @@ function Register() {
             </tr>
           </thead>
           <tbody>
-            {loginData.map((login, index) => (
+            {loginData.map((Employee, index) => (
               <tr key={index}>
-                <td>{login.name}</td>
-                <td>{login.email}</td>
-                <td>{login.scope}</td>
+                <td>{Employee.Name}</td>
+                <td>{Employee.Email}</td>
+                <td>{Employee.Scope}</td>
                 <td>
                   <button className="edit-button" onClick={() => {
-                    setEditingUser(login.name);
-                    setEditName(login.name);
-                    setEditEmail(login.email);
-                    setEditPermission(login.scope);
+                    setEditingUser(Employee.Name);
+                    setEditName(Employee.Name);
+                    setEditEmail(Employee.Email);
+                    setEditWeight(Employee.Weight);
                     setShowEditPopup(true);
                   }}>Edit</button>
                 </td>
                 <td>
                   <button className="delete-button" onClick={() => {
-                    setDeletingUser(login.name);
+                    setDeletingUser(Employee.Name);
                     setShowConfirmationPopup(true);
                   }}>Delete</button>
                 </td>
@@ -231,21 +239,28 @@ function Register() {
               <input
                 type="text"
                 id="username"
-                value={name}
+                value={Name}
                 onChange={(e) => setUsername(e.target.value)}
               />
               <label htmlFor="password">Password:</label>
               <input
                 type="password"
                 id="password"
-                value={pin}
+                value={Pin}
                 onChange={(e) => setPassword(e.target.value)}
+              />
+              <label htmlFor="Weight">Weight:</label>
+              <input
+                type="Weight"
+                id="Weight"
+                value={Weight}
+                onChange={(e) => setWeight(e.target.value)}
               />
               <label htmlFor="email">Email:</label>
               <input
                 type="email"
                 id="email"
-                value={email}
+                value={Email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               {errorMessage && <div className="error-message">{errorMessage}</div>}
@@ -273,6 +288,13 @@ function Register() {
                 id="edit-email"
                 value={editEmail}
                 onChange={(e) => setEditEmail(e.target.value)}
+              />
+              <label htmlFor="edit-Weight">Weight:</label>
+              <input
+                type="text"
+                id="edit-Weight"
+                value={editWeight}
+                onChange={(e) => setEditWeight(e.target.value)}
               />
               {errorMessage && <div className="error-message">{errorMessage}</div>}
               <div className="button-group">

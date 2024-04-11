@@ -5,6 +5,7 @@ import './changePIN.css';
 function ChangeEmailPassword() {
     const [newEmail, setNewEmail] = useState(''); // State for new email
     const [newPassword, setNewPassword] = useState(''); // State for new password
+    const [newWeight, setNewWeight] = useState('');
     const [error, setError] = useState(null); // State for error message
     const [success, setSuccess] = useState(false); // State for success message
     const [currentUser, setCurrentUser] = useState(null); // State for current user data
@@ -15,9 +16,9 @@ function ChangeEmailPassword() {
                 const usernameFromLocal = localStorage.getItem('username'); // Get username from local storage
                 if (usernameFromLocal) {
                     const { data, error } = await supabase
-                        .from('login')
-                        .select('email, pin')
-                        .eq('name', usernameFromLocal)
+                        .from('Employee')
+                        .select('Email, Pin')
+                        .eq('Name', usernameFromLocal)
                         .single();
 
                     if (error) {
@@ -41,9 +42,9 @@ function ChangeEmailPassword() {
             if (usernameFromLocal) {
                 // Update email and password in the database
                 const { data, error: updateError } = await supabase
-                    .from('login')
-                    .update({ email: newEmail, pin: newPassword })
-                    .eq('name', usernameFromLocal);
+                    .from('Employee')
+                    .update({ Email: newEmail, Pin: newPassword, Weight: newWeight })
+                    .eq('Name', usernameFromLocal);
 
                 if (updateError) {
                     throw updateError;
@@ -79,6 +80,15 @@ function ChangeEmailPassword() {
                             id="newPassword"
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                    </div>
+                    <div>
+                        <label htmlFor="newWeight">New Weight:</label>
+                        <input
+                            type="Weight" // Assuming "pin" is used for password
+                            id="newWeight"
+                            value={newWeight}
+                            onChange={(e) => setNewWeight(e.target.value)}
                         />
                     </div>
                     {error && <div style={{ color: 'red' }}>{error}</div>} {/* Display error message if any */}
