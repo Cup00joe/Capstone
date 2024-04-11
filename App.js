@@ -4,6 +4,7 @@ import Sidebar from './PageFunction/sidebar';
 import RenderCalendar from './PageFunction/HomeCalendar';
 import Register from './PageFunction/register';
 import ChangePIN from './PageFunction/changePIN';
+import Appointment from './PageFunction/Appointment1';
 import SunriseSunsetComponent from './PageFunction/SunriseSunsetComponent';
 import moment from 'moment-timezone';
 import { useSession, useSupabaseClient } from '@supabase/auth-helpers-react';
@@ -12,18 +13,36 @@ import PageTitle from './PageFunction/pageTitle';
 import Toggle from './PageFunction/Toggle';
 import GoogleCalendarEvents from './PageFunction/GoogleCalendarEvents';
 import Address from './PageFunction/Address';
+import GoogleCalendarEventCreate from './PageFunction/GoogleCalendarEventCreate';
+
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isGoogleLoggedIn, setIsGoogleLoggedIn] = useState(false);
   const [page, setPage] = useState(localStorage.getItem('currentPage') || 'Home');
   const [selectedDate, setSelectedDate] = useState(moment()); // 默认为当天日期
+  const [selectedDate2, setSelectedDate2] = useState(moment());
   const [selectedLocation, setSelectedLocation] = useState('');
   const [coordinates, setCoordinates] = useState('');
   const [isDark, setDark] = useState(false);
-
   const session = useSession();
   const supabase = useSupabaseClient();
+
+  const [sunrise, setSunrise] = useState(null);
+  const [sunset, setSunset] = useState(null);
+  const [parentTime, setParentTime] = useState('AM');
+
+    const handleTimeChange = (newTime) => {
+        setParentTime(newTime);
+    };
+    console.log(parentTime);
+
+    // 定义处理日出日落时间的函数
+    const handleSunriseSunsetTime = (sunriseTime, sunsetTime) => {
+        setSunrise(sunriseTime);
+        setSunset(sunsetTime);
+    };
 
   useEffect(() => {
     const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -91,6 +110,11 @@ function App() {
     setSelectedDate(date);
   };
 
+  const handleDateSelect2 = (date) => {
+    console.log('Selected date:', date.format('YYYY-MM-DD'));
+    setSelectedDate2(date);
+  };
+
   const handleDarkToggle = () => {
     if (isDark) {
       localStorage.removeItem('isDark');
@@ -111,6 +135,7 @@ function App() {
       setCoordinates(newCoords);
   };
 
+
   return (
     <div className="App">
       <Sidebar isLoggedIn={isLoggedIn} setPage={setPage}/>
@@ -129,7 +154,11 @@ function App() {
                         <div className="side-content-container">
                           <GoogleCalendarEvents selectedDate={selectedDate}>
                             <Address onAddressSubmit={handleAddressSubmit} setSelectedLocation={setSelectedLocation}/>
-                            <SunriseSunsetComponent coordinates={coordinates} selectedDate={selectedDate} selectedLocation={selectedLocation}/>
+                            <SunriseSunsetComponent 
+                            coordinates={coordinates} 
+                            selectedDate={selectedDate} 
+                            selectedLocation={selectedLocation}
+                            onSunriseSunsetTime={handleSunriseSunsetTime}/>
                           </GoogleCalendarEvents>
                         </div>
                     </div>
@@ -148,6 +177,34 @@ function App() {
                   <div className="home-container">
                     <h2>Welcome, !</h2>
                     <p>{`Today is ${moment().format('YYYY-MM-DD')}`}</p>
+                  </div>
+                )}
+                {page === 'Appointment' && (
+                  <div>
+                  <div className="calendar-parent-container">
+                    <RenderCalendar selectedDate={selectedDate} onDateSelect={handleDateSelect2} />
+                    <Appointment selectedDate2={selectedDate2} 
+                    sunrise={sunrise} 
+                    sunset={sunset}
+                    selectedLocation={selectedLocation}
+                    parentTime={parentTime}
+                    onTimeChange={handleTimeChange}/>
+                  </div>
+                  <div className="side_appointment_page">
+                  <Address onAddressSubmit={handleAddressSubmit} setSelectedLocation={setSelectedLocation}/>
+                  <SunriseSunsetComponent 
+  coordinates={coordinates} 
+  selectedDate={selectedDate2} 
+  selectedLocation={selectedLocation} 
+  onSunriseSunsetTime={handleSunriseSunsetTime}
+/>
+<GoogleCalendarEventCreate 
+                    parentTime={parentTime}
+                    selectedDate2={selectedDate2}
+                    selectedLocation={selectedLocation}
+                    sunrise={sunrise} 
+                    sunset={sunset}/>
+                  </div>
                   </div>
                 )}
               </>
