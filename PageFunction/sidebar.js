@@ -5,18 +5,18 @@ import customerInfoIcon from '../picture/customerInfoIcon.png';
 import appointmentIcon from '../picture/appointmentIcon.png';
 import SettingIcon from '../picture/SettingIcon.png';
 import SignOut from '../picture/SignOut.png';
-import './sidebar.css'; // 根据您的实际设置调整路径
+import './sidebar.css'; // Adjust the path according to your actual settings
 import Login from './Login';
 
 function Sidebar({ setPage }) {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
-  const [collapsed, setCollapsed] = useState(true); // 默认为false，您可以根据实际情况修改
+  const [collapsed, setCollapsed] = useState(true); // Default is false, you can modify this according to your actual situation
   const sidebarRef = useRef(null);
-  const [username, setUsername] = useState(localStorage.getItem('username') || ''); // 从本地存储中获取用户名状态
-  const [currentPage, setCurrentPage] = useState(localStorage.getItem('currentPage') || ''); // 从本地存储中获取当前页面状态
+  const [username, setUsername] = useState(localStorage.getItem('username') || ''); // Get username state from local storage
+  const [currentPage, setCurrentPage] = useState(localStorage.getItem('currentPage') || ''); // Get current page state from local storage
   
   useEffect(() => {
-    // 更新本地存储的登录状态
+    // Update the local storage with the login status
     localStorage.setItem('isLoggedIn', isLoggedIn);
   }, [isLoggedIn]);
 
@@ -29,13 +29,13 @@ function Sidebar({ setPage }) {
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // 更新登录状态为false
+    setIsLoggedIn(false); // Update login status to false
     window.location.reload();
-    localStorage.removeItem('isLoggedIn'); // 从本地存储中移除登录状态
-    localStorage.removeItem('username'); // 从本地存储中移除用户名
-    localStorage.removeItem('currentPage'); // 从本地存储中移除当前页面
-    setUsername(''); // 清空用户名
-    setCurrentPage(''); // 清空当前页面
+    localStorage.removeItem('isLoggedIn'); // Remove login status from local storage
+    localStorage.removeItem('username'); // Remove username from local storage
+    localStorage.removeItem('currentPage'); // Remove current page from local storage
+    setUsername(''); // Clear username
+    setCurrentPage(''); // Clear current page
   };
 
   const setPageAndCloseMenu = (pageName) => {
@@ -43,7 +43,7 @@ function Sidebar({ setPage }) {
     setCurrentPage(pageName);
     setCollapsed(false);
   
-    // 更新本地存储中的 currentPage 值
+    // Update the currentPage value in local storage
     localStorage.setItem('currentPage', pageName);
   };
 
@@ -51,11 +51,11 @@ function Sidebar({ setPage }) {
 
   const handleLoginSuccess = (username) => {
     setIsLoggedIn(true);
-    setIsLoginSuccessVisible(true); // 登录成功时显示登录成功浮窗
-    setUsername(username); // 设置用户名
-    console.log('Logged in as:', username); // 打印用户名到控制台
+    setIsLoginSuccessVisible(true); // Show login success popup when login succeeds
+    setUsername(username); // Set the username
+    console.log('Logged in as:', username); // Print the username to the console
     localStorage.setItem('isLoggedIn', true);
-    localStorage.setItem('username', username); // 将用户名存储在本地存储中
+    localStorage.setItem('username', username); // Store the username in local storage
     localStorage.setItem('currentPage', 'Home');
     setTimeout(() => {
       setIsLoginSuccessVisible(false);

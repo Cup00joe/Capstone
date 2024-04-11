@@ -1,25 +1,65 @@
-import React, { useState } from 'react';
-import './Address.css'; // 导入样式文件
-import Address from '../picture/address.png';
+import React, { useState, useEffect } from 'react';
+import './SunriseSunset&AddressComponent.css'; 
+import SearchBar from './SearchBar';
 
-const AddressInput = ({ onAddressSubmit }) => {
+const AddressInput = ({ onAddressSubmit, setSelectedLocation }) => {
   const [address, setAddress] = useState('');
+  const [queryLocation, setQueryLocation] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Initialize if address was written earlier
+  // Context is an empty array to signify effect is independent; hence,  it triggers only once
+  useEffect(() => {
+
+    let storedAddress = localStorage.getItem('address');
+    if (storedAddress) {
+      setQueryLocation(storedAddress);
+      queryAddress(storedAddress);
+    }
+  }, []);
+
+  useEffect(() => {
+
+    setAddress(queryLocation);
+    if (address !== '') 
+      localStorage.setItem('address', address);
+  }, [address, queryLocation])
+
+
   const handleAddressChange = (event) => {
-    setAddress(event.target.value);
+
+    setQueryLocation(event.target.value);
+    console.log("TYPING: ", event.target.value);
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = (event) => {
+
     event.preventDefault();
-    setErrorMessage(''); // 清除之前的错误消息
-    
+    setErrorMessage(''); 
+
+    setAddress(queryLocation);
+    queryAddress(queryLocation);
+  }
+
+  const queryAddress = async(location) => {
+    console.log("REQUESTED LOCATION: ", location);
+    if (location === '') return;
+
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&addressdetails=1&limit=1`);
       const data = await response.json();
       if (data.length > 0) {
-        const { lat, lon } = data[0];
-        // 调用父组件的回调函数，将坐标传递给父组件
+        const { lat, lon, name } = data[0];
+
+        const { city, state } = data[0].address;
+        if (city === undefined || state === undefined) {
+          setSelectedLocation(name);
+          setQueryLocation(name);
+        } else {
+          setSelectedLocation(city + ', ' + state);
+          setQueryLocation(city + ', ' + state);
+        }
+
         onAddressSubmit(`${lat},${lon}`);
       } else {
         setErrorMessage('No results found for the address. Please provide a more detailed address.');
@@ -28,19 +68,10 @@ const AddressInput = ({ onAddressSubmit }) => {
       console.error('Error fetching geocoding data:', error);
       setErrorMessage('Error fetching geocoding data. Please try again later.');
     }
-  };
+  }
 
   return (
-    <form className="address-form" onSubmit={handleSubmit}>
-      <label className="address-label">
-      <img src={Address} alt="address" />
-        <span style={{ fontSize: '24px' }}>Address:</span>
-        <input className="address-input" type="text" placeholder="Enter your address" value={address} onChange={handleAddressChange} />
-        <span style={{ fontSize: '14px' , color: 'red', }}>**Fuzzy addresses and renamed addresses may return incorrect times**</span>
-      </label>
-      <button className="submit-button" type="submit">Submit</button>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-    </form>
+      <SearchBar icon="address" placeholder="Search City" {...queryLocation !== '' && {value: queryLocation}} onSubmitMethod={handleSubmit} onChangeMethod={handleAddressChange}/>
   );
   
 };

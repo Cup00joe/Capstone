@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from '../supabase'; // 根据你的实际路径进行调整
+import { supabase } from '../supabase'; // Adjust according to your actual path
 import './register.css';
 
 function Register() {
-  const [Name, setUsername] = useState(''); // 将注册的用户名作为独立的状态
+  const [Name, setUsername] = useState(''); // Set the registered username as an independent state
   const [Pin, setPassword] = useState('');
   const [Email, setEmail] = useState('');
   const [Weight, setWeight] = useState('');
   const [Scope, setPermission] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [owner, setOwner] = useState(false); // 添加 owner 状态
+  const [owner, setOwner] = useState(false); // Add owner state
   const [loginData, setLoginData] = useState([]);
   const [showRegisterPopup, setShowRegisterPopup] = useState(false);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
@@ -20,10 +20,10 @@ function Register() {
   const [editEmail, setEditEmail] = useState('');
   const [editWeight, setEditWeight] = useState('');
  
-  // 提升 checkPermission 函数的定义
-  const checkPermission = async (name) => { // 接受用户名作为参数
+  // Promote the definition of the checkPermission function
+  const checkPermission = async (name) => { // Accept username as a parameter
     try {
-      // 查询所有用户的登录数据
+      // Query all user login data
       const { data: allLoginData, error } = await supabase
         .from('Employee')
         .select('*');
@@ -32,13 +32,13 @@ function Register() {
         throw error;
       }
 
-      // 存储用户的权限信息
-      const login = allLoginData.find(user => user.Name === name); // 查找当前登录用户的信息
+      // Store user permission information
+      const login = allLoginData.find(user => user.Name === name); // Find information of the currently logged-in user
       if (login && login.Scope) {
         setPermission(login.Scope);
 
         if (login.Scope !== 'owner') {
-          // 如果用户权限不是 owner，则重定向到其他页面或者显示相应的提示信息
+          // If the user's permission is not owner, redirect to another page or display the appropriate message
           console.log('Permission denied. Redirecting...');
           setOwner(false);
         } else {
@@ -50,7 +50,7 @@ function Register() {
         setOwner(false);
       }
 
-      // 将所有登录数据设置到状态中
+      // Set all login data to the state
       setLoginData(allLoginData);
     } catch (error) {
       console.error('Error checking permission:', error.message);
@@ -58,24 +58,24 @@ function Register() {
   };
 
   useEffect(() => {
-    let mounted = true; // 设置一个标志来跟踪组件是否已经卸载
+    let mounted = true; // Set a flag to track whether the component is unmounted
 
     const usernameFromLocal = localStorage.getItem('username');
     if (usernameFromLocal) {
-      checkPermission(usernameFromLocal); // 使用当前登录用户名来检查权限
+      checkPermission(usernameFromLocal); // Check permissions using the current logged-in username
     }
 
-    // 组件卸载时执行清理逻辑
+    // Clean-up logic when the component unmounts
     return () => {
       mounted = false;
     };
-  }, [Name]); // 使用 name 作为依赖项
+  }, [Name]); // Use name as a dependency
 
   const handleRegister = async (event) => {
     event.preventDefault();
 
     try {
-      // 检查用户名和密码是否为空
+      // Check if username and password are empty
       if (!Name || !Pin) {
         throw new Error('Username and password are required.');
       }
@@ -86,7 +86,7 @@ function Register() {
         throw new Error('Missing weight information.');
       }
 
-      // 在Supabase中插入注册信息到login表
+      // Insert registration information into the login table in Supabase
       const { data, error } = await supabase
         .from('Employee')
         .insert([
@@ -100,19 +100,19 @@ function Register() {
 
       console.log('Account registered successfully:', data);
 
-      // 清空表单
+      // Clear the form
       setUsername('');
       setPassword('');
       setEmail('');
       setWeight('');
       setPermission('');
       setErrorMessage('');
-      // 关闭注册浮窗
+      // Close the registration popup
       setShowRegisterPopup(false);
 
       window.location.reload();
     } catch (error) {
-      // 处理错误
+      // Handle errors
       console.error('Error registering account:', error.message);
       setErrorMessage(error.message);
     }
@@ -120,7 +120,7 @@ function Register() {
 
   const handleDelete = async () => {
     try {
-      // 在Supabase中删除指定用户名的数据
+      // Delete data for the specified username in Supabase
       const { data, error } = await supabase
         .from('Employee')
         .delete()
@@ -132,10 +132,10 @@ function Register() {
 
       console.log('Account deleted successfully:', data);
 
-      // 关闭确认浮窗
+      // Close the confirmation popup
       setShowConfirmationPopup(false);
 
-      // 刷新数据
+      // Refresh data
       const { data: refreshedData, error: refreshError } = await supabase
         .from('Employee')
         .select('*');
@@ -155,7 +155,7 @@ function Register() {
     event.preventDefault();
 
     try {
-      // 在Supabase中更新指定用户名的数据
+      // Update data for the specified username in Supabase
       const { data, error } = await supabase
         .from('Employee')
         .update({ Name: editName, Email: editEmail, Weight:editWeight})
@@ -167,10 +167,10 @@ function Register() {
 
       console.log('Account updated successfully:', data);
 
-      // 关闭编辑浮窗
+      // Close the edit popup
       setShowEditPopup(false);
 
-      // 刷新数据
+      // Refresh data
       const { data: refreshedData, error: refreshError } = await supabase
         .from('Employee')
         .select('*');
@@ -189,7 +189,7 @@ function Register() {
   return (
     <div className="register-container">
       <h2>User Management</h2>
-      {owner && ( // 只有 owner 为 true 时才显示用户管理表格
+      {owner && ( // Display user management table only when owner is true
         <table className="login-table">
           <thead>
             <tr>
@@ -226,7 +226,7 @@ function Register() {
           </tbody>
         </table>
       )}
-      {owner && ( // 只有 owner 为 true 时才显示注册按钮
+      {owner && ( // Display register button only when owner is true
         <button className="register-button" onClick={() => setShowRegisterPopup(true)}>Register</button>
       )}
       {showRegisterPopup && (

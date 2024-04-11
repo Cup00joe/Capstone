@@ -1,31 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
-import './SunriseSunsetComponent.css'; // 导入样式文件
-import Sunrise from '../picture/Sunrise.png';
+import './SunriseSunset&AddressComponent.css';
 
-function SunriseSunsetComponent({ coordinates, selectedDate }) {
+function SunriseSunsetComponent({ coordinates, selectedDate, selectedLocation, onSunriseSunsetTime}) {
     const [sunriseSunsetInfo, setSunriseSunsetInfo] = useState(null);
 
     useEffect(() => {
-        console.log("Received coordinates:", coordinates);
-        console.log("Received selectedDate:", selectedDate);
         const fetchData = async () => {
             if (!coordinates || !selectedDate) {
-                // 如果没有收到坐标或者时间，直接返回
                 return;
             }
 
             const [latitude, longitude] = coordinates.split(',');
 
-            const url = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${selectedDate}&formatted=0`;
+            const url = `https://api.sunrise-sunset.org/json?lat=${latitude}&lng=${longitude}&date=${selectedDate.format('YYYY-MM-DD')}&formatted=0`;
             try {
                 const response = await fetch(url);
                 const data = await response.json();
                 if (data.status === "OK") {
-                    const sunrise = moment(data.results.sunrise).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
-                    const sunset = moment(data.results.sunset).tz('America/New_York').format('YYYY-MM-DD HH:mm:ss');
+                    const sunrise = moment(data.results.sunrise).tz('America/New_York').format('h:mm A');
+                    const sunset = moment(data.results.sunset).tz('America/New_York').format('h:mm A');
                     setSunriseSunsetInfo({ sunrise, sunset });
+
+                    onSunriseSunsetTime(sunrise, sunset);
                 } else {
                     throw new Error("Failed to retrieve sunrise and sunset information.");
                 }
@@ -35,19 +33,36 @@ function SunriseSunsetComponent({ coordinates, selectedDate }) {
             }
         };
         fetchData();
-    }, [coordinates, selectedDate]);
+    }, [coordinates, selectedDate, onSunriseSunsetTime]);
 
     return (
         <div className="sunrise-sunset-container">
-            <img src={Sunrise} alt="Sunrise" />
+            <div className="sunrise-sunset-wrapper">
+            <div className="sunrise-sunset-header">
+                {selectedLocation !== "" ? (
+                    <p className="ss-location">{selectedLocation}</p>
+                ) : (
+                    <p className="ss-location">Search City</p>
+                )
+                }
+                <span className="sunrise-sunset-header-divider"></span>
+                <p className="ss-date">{selectedDate.format('MM-DD-YYYY')}</p>
+            </div>
             {sunriseSunsetInfo ? (
-                <div className="sunrise-sunset-info">
-                    <p className="sunrise-time">Sunrise: {sunriseSunsetInfo.sunrise}</p>
-                    <p className="sunset-time">Sunset: {sunriseSunsetInfo.sunset}</p>
+                <div className="sunrise-sunset-main-content">
+                    <div className="ss-time">
+                        <h2>Sunrise</h2>
+                        <p>{sunriseSunsetInfo.sunrise}</p>
+                    </div>
+                    <div className="ss-time">
+                        <h2>Sunset</h2>
+                        <p>{sunriseSunsetInfo.sunset}</p>
+                    </div>
                 </div>
             ) : (
-                <div className="loading-message">Waiting for date selection and address entry</div>
+                <div className="loading-message">Fetching sunrise and sunset times...</div>
             )}
+            </div>
         </div>
     );
 }
