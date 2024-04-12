@@ -13,10 +13,9 @@ const category = Object.freeze({
     Fax: 5
 });
 
-function AddContactsButton({ id=1, person, toggleUpdate=null }) {
+function AddContactsButton({ id=1, person, toggleUpdate=null, toggleState=null }) {
     const [isActive, setActive] = useState(false);
     const ref = useOutsideClick(() => setActive(false));
-    console.log("PErson: ", Object.keys(person));
 
     const handleUpdate = (event, category) => {
 
@@ -40,7 +39,7 @@ function AddContactsButton({ id=1, person, toggleUpdate=null }) {
                 updateRiderFax(event);
                 break;
         }
-        toggleUpdate(true);
+        toggleUpdate(!toggleState);
     }
 
     const updateRiderMainPhone = (event) => {

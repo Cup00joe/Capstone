@@ -1,9 +1,9 @@
 import './Form.css';
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import DropdownMenu from '../DropdownMenu/DropdownMenu';
 import ContactButton from '../AddContactsButton/AddContactsButton';
 
-// Enum for categories for customers
+// Enum for the fields of the customer form
 const customerCategory = Object.freeze({
 
     title: 0, firstName: 1, middleName: 2, lastName: 3, suffix: 4, displayName: 5,  // Full Name
@@ -20,7 +20,7 @@ const riderCategory = Object.freeze({
 });
 
 // Rider Object
-const Rider = (instanceId=Date.now(), name='', weight=0, mainPhone='', workPhone='', mobilePhone='', email='', CCEmail='', fax='') => {
+const Rider = (instanceId=Date.now(), name='', weight='0', mainPhone='', workPhone='', mobilePhone='', email='', CCEmail='', fax='') => {
     return {
         instanceId: instanceId,
         name: name,
@@ -40,7 +40,7 @@ function Form() {
         mainPhone: '', workPhone: '', mobilePhone: '', email: '', CCEmail: '', fax: '',       // Contact
         s_streetAddress: '', s_city: '', s_state: '', s_zipCode: '',                          // Shipping Address
         b_streetAddress: '', b_city: '', b_state: '', b_zipCode: '',                          // Billing Address
-        webOrderId: '', quickbooksId: '', notes: '',  
+        webOrderId: '', quickbooksId: '', notes: ''
     });
 
     const [text, setText] = useState('');
@@ -56,16 +56,44 @@ function Form() {
     const [email, setEmail] = useState('');
     const [CCEmail, setCCEmail] = useState('');
     const [fax, setFax] = useState('');*/
-    
 
     useEffect(() => {
 
-        console.log(numOfRiders);
-        console.log(...listOfRiders);
-        console.log("USE_EFFECT____________________");
+        console.log("______________CUSTOMER INFORMATION_____________");
+        console.log("\t>: ", customer);
+        console.log("_______________________________________________\n\n");
+    }, [customer]);
+
+    useEffect(() => {
+
+        console.log("___________UPDATED TABLE OF RIDERS_____________");
+        console.log("\tNUM OF RIDERS: ", numOfRiders);
+        console.log("\tRIDERS.......: ", ...listOfRiders);
+        console.log("_______________________________________________\n\n");
         showRiderRows();
-        toggleUpdateList(false);
     }, [numOfRiders, listOfRiders, toUpdateList]);
+
+    useEffect(() => {
+
+        if (customerIsRider) {
+
+            console.log("CUSTOMER IS RIDER TOO");
+            const rider = Rider(0, customer.name, customer.weight, 
+                                customer.mainPhone, customer.workPhone, 
+                                customer.mobilePhone, customer.email, 
+                                customer.CCEmail, customer.fax);
+            addRider(rider);
+        } else {
+
+            if (numOfRiders > 0) {
+
+                console.log("CUSTOMER IS NOT A RIDER");
+                const idx = listOfRiders.findIndex((obj) => (obj.instanceId === 0))
+                console.log("IDX: ", idx);
+                deleteRider(idx);
+            }
+        }
+    }, [customerIsRider]);
 
     const handleSubmit = async(event) => {
 
@@ -75,25 +103,38 @@ function Form() {
     const handleCustomerRiderToggle = () => {
 
         setCustomerAsRider(!customerIsRider);
-        //if (customerIsRider) {
+        toggleUpdateList(true);
+    }
 
-        //}
+    const handleDeleteRider = (event, idx) => {
+
+        event.preventDefault();
+        deleteRider(idx);
     }
 
     const deleteRider = (idx) => {
-        return function() {
+
+        console.log("REMOVED RIDER with IDX: ", idx);
+        if (idx > -1) {
             setNumOfRiders(numOfRiders - 1);
-            if (idx > -1) {
-                listOfRiders.splice(idx, 1);
-            }
+            listOfRiders.splice(idx, 1);
+        }
+        if (idx === 0) {
+            setCustomerAsRider(false);
         }
     }
 
-    const addRider = () => {
+    const handleAddRider = (event) => {
 
-        console.log("ADDED");
+        event.preventDefault();
+        addRider();
+    }
+
+    const addRider = (rider=null) => {
+
+        toggleUpdateList(!toUpdateList);
         setNumOfRiders(numOfRiders + 1);
-        appendRider([...listOfRiders, Rider()]);
+        appendRider([...listOfRiders, rider ? rider : Rider()]);
     }
 
     const showRiderRows = () => {
@@ -101,15 +142,21 @@ function Form() {
         const arr = [];
         for (let i = 0; i < numOfRiders; ++i) {
 
+
+
             arr.push(
-                //add key to <tr> soon
-                <tr>
+                <tr key={i}>
                     <th scope="row">{i + 1}</th>
                     <td><input type="text" value={listOfRiders[i].name} onChange={event => handleRiderUpdate(i, event, riderCategory.name)}></input></td>
-                    <td><input type="number" value={listOfRiders[i].weight === 0 ? '' : listOfRiders[i].weight} onChange={event => handleRiderUpdate(i, event, riderCategory.weight)}></input></td>
+                    <td><input type="text"
+                               value={listOfRiders[i].weight === '0' ? '' : listOfRiders[i].weight} 
+                               onBlur={event => fixDecimal(i, event)} 
+                               onChange={event => handleRiderUpdate(i, event, riderCategory.weight)}
+                               disabled={listOfRiders[i].instanceId === 0 ? true : false}>
+                    </input></td>
                     <td className="form-body-wrapper_flex-row">
-                        <ContactButton id={i + 1} person={listOfRiders[i]} toggleUpdate={toggleUpdateList}/>
-                        <button className="delete-button" onClick={ deleteRider(i) }>Ｘ</button>
+                        <ContactButton id={i + 1} person={listOfRiders[i]} toggleUpdate={toggleUpdateList} toggleState={toUpdateList}/>
+                        <button className="delete-button" onClick={event => handleDeleteRider(event, i) }>Ｘ</button>
                     </td>
                 </tr>
             )
@@ -117,92 +164,68 @@ function Form() {
         return arr;
     }
 
-    // CUSTOMER METHODS
+    // Update Customer Attributes
     const handleCustomerUpdate = (event, category) => {
 
-        switch (category) {
-            case 0:
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
-                updateMainPhone(event);
-                break;
-            case 7:
-                break;
-            case 8:
-                break;
-            case 9:
-                break;
-            case 10:
-                break;
-            case 11:
-                break;
-            case 12:
-                break;
-            case 13:
-                break;
-            case 14:
-                break;
-            case 15:
-                break;
-            case 16:
-                break;
-            case 17:
-                break;
-            case 18:
-                break;
-            case 19:
-                break;
-            case 20:
-                break;
-            case 21:
-                break;
-            case 22:
-                break;
-        }
-    }
-
-    const updateMainPhone = (event) => {
-
-        console.log(event.target.value);
+        event.preventDefault();
+        const key = Object.keys(customerCategory).find(key => customerCategory[key] === category);
         updateCustomer(prevState => ({
             ...prevState,
-            mainPhone: event.target.value
+            [key]: event.target.value
         }));
-        console.log(customer.mainPhone);
     }
 
-    // RIDER METHODS
+
+    // Update Rider Attributes
     const handleRiderUpdate = (entryId, event, category) => {
 
+        event.preventDefault();
+        console.log("VALUE:", event.target.value);
+        const key = Object.keys(riderCategory).find(key => riderCategory[key] === category);
+
         switch (category) {
-            case 0:
-                updateRiderName(entryId, event);
+            case 0: // Name
+                listOfRiders[entryId][key] = event.target.value;
+                console.log("CURRENT NAME: ", listOfRiders[entryId][key]);
+                toggleUpdateList(!toUpdateList);
                 break;
-            case 1:
-                updateRiderWeight(entryId, event);
+            case 1: // Weight
+                listOfRiders[entryId][key] = sanitizeNumber(key, entryId, event.target.value);
                 break;
+            default:
+                return;
         }
-        toggleUpdateList(true);
     }
 
-    const updateRiderName = (entryId, event) => {
+    // Return old value if new value is invalid; otherwise return new value
+    const sanitizeNumber = (key, entryId, value) => {
+        
+        if (isNaN(value)) {
 
-        listOfRiders[entryId].name = event.target.value;
+            // Keep previous value
+            value = listOfRiders[entryId][key];
+            //toggleUpdateList(!toUpdateList);
+        } else {
+
+            // Keep new value; if it's empty, choose default value of '0'
+            if (value === '') { value = '0'; }
+            toggleUpdateList(!toUpdateList);
+        }
+
+        return value;
     }
 
-    const updateRiderWeight = (entryId, event) => {
+    // If number ends with a decimal with no numbers in the decimal place, add a '0' after it
+    const fixDecimal = (i, event) => {
 
-        listOfRiders[entryId].weight = event.target.value === '' ? 0 : parseInt(event.target.value);
+        event.preventDefault();
+
+        if ((listOfRiders[i].weight).endsWith('.')) {
+
+            listOfRiders[i].weight += '0';
+            toggleUpdateList(!toUpdateList);
+            //toggleUpdateList(true);
+        }
     }
 
     /*const handleEdit = async (event) => {
@@ -253,7 +276,7 @@ function Form() {
                                 <div className="form-body-wrapper_flex-row">
                                     <div className="form-field flex1">
                                         <label htmlFor="name-title">Title</label>
-                                        <input id="name-title" type="text"/>
+                                        <input id="name-title" type="text" value={customer.title} onChange={event => handleCustomerUpdate(event, customerCategory.title)}/>
                                     </div>
                                     <div className="form-field flex3">
                                         <label htmlFor="first-name">First Name</label>
@@ -298,13 +321,13 @@ function Form() {
                                     </div>
                                     <div className="form-field flex1">
                                         <label htmlFor="email">Email</label>
-                                        <input id="email" type="email"/>
+                                        <input id="email" type="email" value={customer.email} onChange={event => handleCustomerUpdate(event, customerCategory.email)}/>
                                     </div>
                                 </div>
                                 <div className="form-body-wrapper_flex-row">
                                     <div className="form-field flex1">
                                         <label htmlFor="work-phone">Work Phone Number</label>
-                                        <input id="work-phone" type="tel"/>
+                                        <input id="work-phone" type="tel" value={customer.workPhone} onChange={event => handleCustomerUpdate(event, customerCategory.workPhone)}/>
                                     </div>
                                     <div className="form-field flex1">
                                         <label htmlFor="cc-email">CC Email</label>
@@ -389,8 +412,8 @@ function Form() {
                         <div className="form-body">
                             <div className='form-body-wrapper_flex-column'>
                             <span>
-                                <input className="form-checkbox" id="customer-as-rider-toggle" type="checkbox" onClick={handleCustomerRiderToggle}/>
-                                <label className="form-checkbox-text" htmlFor="customer-as-rider-toggle">Add customer as a rider too</label>
+                                <input className="form-checkbox" id="customer-as-rider-toggle" type="checkbox" checked={ customerIsRider } onChange={ handleCustomerRiderToggle }/>
+                                <label className="form-checkbox-text" htmlFor="customer-as-rider-toggle">Add customer as a rider too (marked with *)</label>
                             </span>
                             <table className="rider-table">
                                 <thead>
@@ -406,7 +429,7 @@ function Form() {
                                 </tbody>
                             </table>
                             </div>
-                            <button className="submit-button" onClick={ addRider }>Add Rider</button>
+                            <button className="submit-button" onClick={ handleAddRider }>Add Rider</button>
                         </div>
                     </div>
 

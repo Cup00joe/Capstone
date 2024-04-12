@@ -201,10 +201,6 @@ function App() {
               >
                 {isGoogleLoggedIn ? 'Google Sign Out' : 'Google Sign In'}
               </button>
-              <button
-                className="qb-signin-button">
-                  QuickBooks Sign In
-              </button>
               <Toggle status={ isDark } method={ handleDarkToggle }/>
             </div>
           </>
