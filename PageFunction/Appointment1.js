@@ -336,8 +336,9 @@ console.log(Recipients);
     };
 
     useEffect(() => {
+        const Time = time === 'AM' ? 'morning' : 'evening';
         const meetingTime = time === 'AM' ? sunriseMoment.clone().subtract(15, 'minutes') : sunsetMoment.clone().subtract(2, 'hours').subtract(15, 'minutes');
-        setEmailBody(`Your balloon flight is now scheduled the morning of ${selectedDate2.format('MMMM DD YYYY')} with a meeting time of ${meetingTime.format('HH:mm')} ${time}. I will text you between 9 and 10 p.m. the evening before your flight with the meeting location details. The meeting sites are all within a 10-mile radius of ${selectedLocation}. If you don't hear from me by 10 p.m., please call me at (330) 633-3288. I am attaching a list of potential meeting sites. Please let me know that you received this email.\n\nThanks,\nDenny`);
+        setEmailBody(`Your balloon flight is now scheduled the ${Time} of ${selectedDate2.format('MMMM DD YYYY')} with a meeting time of ${meetingTime.format('HH:mm')} ${time}. I will text you between 9 and 10 p.m. the evening before your flight with the meeting location details. The meeting sites are all within a 10-mile radius of ${selectedLocation}. If you don't hear from me by 10 p.m., please call me at (330) 633-3288. I am attaching a list of potential meeting sites. Please let me know that you received this email.\n\nThanks,\nDenny`);
         setSubject(`Flight Appointment for ${selectedDate2.format('MMMM DD YYYY')}`);
     }, [selectedDate2, time, sunriseMoment, sunsetMoment]);
 
