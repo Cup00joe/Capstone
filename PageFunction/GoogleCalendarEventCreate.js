@@ -2,12 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import moment from 'moment';
 
+import './GoogleCalendarEventCreate.css'; 
+
 function GoogleCalendarEvent({ selectedDate2, sunrise, sunset, parentTime, selectedLocation }) {
     const session = useSession();
     const sunriseMoment = moment(sunrise, 'HH:mm:ss');
     const sunsetMoment = moment(sunset, 'HH:mm:ss');
     const [isButtonPressed, setIsButtonPressed] = useState(false);
     const wasButtonPreviouslyPressed = useRef(false);
+    const [selectedCalendar, setSelectedCalendar] = useState('primary');
+    const [calendars, setCalendars] = useState([]);
     const meetingTime = parentTime === 'AM' ? sunriseMoment : sunsetMoment;
     const date = selectedDate2.format('YYYY-MM-DD');
     const formattedMeetingTime = meetingTime.format('HH:mm:ss');
@@ -18,7 +22,6 @@ function GoogleCalendarEvent({ selectedDate2, sunrise, sunset, parentTime, selec
     } catch (error) {
         console.error('Error parsing formattedMeetingTime:', error.message);
     }
-    console.log(date, formattedMeetingTime, selectedLocation);
 
     const handleButtonPress = () => {
         if (formattedTime) {
@@ -30,12 +33,43 @@ function GoogleCalendarEvent({ selectedDate2, sunrise, sunset, parentTime, selec
         setIsButtonPressed(false);
     };
 
+    const handleCalendarChange = (event) => {
+        setSelectedCalendar(event.target.value);
+    };
+
     useEffect(() => {
         if (isButtonPressed && !wasButtonPreviouslyPressed.current && formattedTime && session && session.provider_token) {
             createGoogleCalendarEvent();
         }
         wasButtonPreviouslyPressed.current = isButtonPressed;
-    }, [isButtonPressed, formattedTime, session]);
+    }, [isButtonPressed, formattedTime, session, selectedCalendar]);
+
+    useEffect(() => {
+        fetchCalendars();
+    }, [session]);
+
+    async function fetchCalendars() {
+        try {
+            const response = await fetch('https://www.googleapis.com/calendar/v3/users/me/calendarList', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${session.provider_token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to fetch calendars');
+            }
+    
+            const data = await response.json();
+           
+            const filteredCalendars = data.items.filter(calendar => !calendar.primary && !calendar.summary.includes('Birthdays'));
+            setCalendars(filteredCalendars);
+        } catch (error) {
+            console.error('Error fetching calendars:', error.message);
+        }
+    }
 
     async function createGoogleCalendarEvent() {
         try {
@@ -56,7 +90,7 @@ function GoogleCalendarEvent({ selectedDate2, sunrise, sunset, parentTime, selec
                 }
             };
 
-            const response = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+            const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/${selectedCalendar}/events`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${session.provider_token}`,
@@ -78,9 +112,20 @@ function GoogleCalendarEvent({ selectedDate2, sunrise, sunset, parentTime, selec
     }
 
     return (
-        <button onMouseDown={handleButtonPress} onMouseUp={handleButtonRelease}>
-            Create Google Calendar Event
-        </button>
+        <div className="google-calendar-event-container"> 
+        <h4> Calendar Selection </h4>
+            <select value={selectedCalendar} onChange={handleCalendarChange}>
+                <option value="primary">Primary Calendar</option>
+                {calendars.map((calendar) => (
+                    <option key={calendar.id} value={calendar.id}>
+                        {calendar.summary}
+                    </option>
+                ))}
+            </select>
+            <button className="create-event-button" onMouseDown={handleButtonPress} onMouseUp={handleButtonRelease}>
+                Create Google Calendar Event
+            </button>
+        </div>
     );
 }
 

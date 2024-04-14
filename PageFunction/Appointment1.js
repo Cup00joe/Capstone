@@ -4,9 +4,10 @@ import { supabase } from '../supabase';
 import moment from 'moment';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Email from './Email';
 
 function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTimeChange, parentTime }) {
-    const [visibility, setVisibility] = useState('Public');
+    const [visibility, setVisibility] = useState('Shared');
     const [time, setTime] = useState(parentTime);
     const [searchCrew, setSearchCrew] = useState('');
     const [customerNames, setCustomerNames] = useState([]);
@@ -26,15 +27,79 @@ function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTim
     const [emailBody, setEmailBody] = useState('');
     const sunriseMoment = moment(sunrise, 'HH:mm:ss');
     const sunsetMoment = moment(sunset, 'HH:mm:ss');
+    const [Subject, setSubject] = useState('');
+    const [Recipients, setRecipients] = useState([]);
 
 useEffect(() => {
-    console.log('Sunrise Moment:', sunriseMoment.format());
-    console.log('Sunset Moment:', sunsetMoment.format());
-}, []);
+    const fetchRecipients = async () => {
+        try {
+            // 获取所有骑手的邮箱地址
+            const riderRecipientPromises = Object.values(riderNames).map(async (riderArray) => {
+                const personIdPromises = riderArray.map(async (riderName) => {
+                    const { data: riderData, error: riderError } = await supabase
+                        .from('Rider')
+                        .select('Person_id')
+                        .eq('Name', riderName);
+            
+                    if (riderError) {
+                        console.error('Error fetching rider data:', riderError.message);
+                    } else {
+                        // 如果找到了骑手数据，则返回骑手的 Person_id
+                        return riderData[0]?.Person_id;
+                    }
+                });
+            
+                // 等待所有骑手 Person_id 的 Promise 完成
+                const personIds = await Promise.all(personIdPromises);
+            
+                // 获取所有骑手的邮箱地址
+                const riderEmailPromises = personIds.map(async (personId) => {
+                    const { data: personData, error: personError } = await supabase
+                        .from('Person')
+                        .select('Email')
+                        .eq('Person_id', personId);
+            
+                    if (personError) {
+                        console.error('Error fetching person data:', personError.message);
+                    } else {
+                        // 如果找到了骑手的邮箱地址，则返回邮箱地址
+                        return personData[0]?.Email;
+                    }
+                });
+            
+                // 等待所有骑手邮箱地址的 Promise 完成
+                return Promise.all(riderEmailPromises);
+            });
 
-    const handleEmailBodyChange = (e) => {
-        setEmailBody(e.target.value);
+            // 获取所有员工的邮箱地址
+            const employeeRecipientPromises = selectedEmployeeNames.map(async (employeeName) => {
+                const { data: employeeData, error: employeeError } = await supabase
+                    .from('Employee')
+                    .select('Email')
+                    .eq('Name', employeeName);
+                if (employeeError) {
+                    console.error('Error fetching employee data:', employeeError.message);
+                } else {
+                    return employeeData[0]?.Email;
+                }
+            });
+
+            // 等待所有骑手和员工邮箱地址的 Promise 完成
+            const riderRecipients = await Promise.all(riderRecipientPromises);
+            const employeeRecipients = await Promise.all(employeeRecipientPromises);
+
+            // 将骑手和员工邮箱地址合并成一个数组
+            const allRecipients = riderRecipients.flat().concat(employeeRecipients);
+            setRecipients(allRecipients);
+        } catch (error) {
+            console.error('Error fetching recipients:', error.message);
+        }
     };
+
+    fetchRecipients();
+}, [riderNames, selectedEmployeeNames, supabase]);
+
+console.log(Recipients);
 
     const handleVisibilityChange = (option) => {
         setVisibility(option);
@@ -47,18 +112,13 @@ useEffect(() => {
         onTimeChange(option);
     };
 
-    const handleSearchCrewChange = (event) => {
-        const value = event.target.value;
-        setSearchCrew(value);
-    };
-
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const { data: customeData, error: customeError } = await supabase
                     .from('Customer')
                     .select('Display_Name')
-                    .eq('PrefersPublic', visibility === 'Public')
+                    .eq('PrefersPublic', visibility === 'Shared')
                     .eq('PrefersAM', time === 'AM');
     
                 if (customeError) {
@@ -275,10 +335,13 @@ useEffect(() => {
         }
     };
 
-    const handleRefreshEmailBody = () => {
-        const meetingTime = time === 'AM' ? sunrise : sunset;
-        setEmailBody(`Your balloon flight is now scheduled the morning of ${selectedDate2.format('MMMM DD YYYY')} with a meeting time of ${meetingTime}. I will text you between 9 and 10 p.m. the evening before your flight with the meeting location details. The meeting sites are all within a 10-mile radius of ${selectedLocation}. If you don't hear from me by 10 p.m., please call me at (330) 633-3288. I am attaching a list of potential meeting sites. Please let me know that you received this email.\n\nThanks,\nDenny`);
-    };
+    useEffect(() => {
+        const meetingTime = time === 'AM' ? sunriseMoment.clone().subtract(15, 'minutes') : sunsetMoment.clone().subtract(2, 'hours').subtract(15, 'minutes');
+        setEmailBody(`Your balloon flight is now scheduled the morning of ${selectedDate2.format('MMMM DD YYYY')} with a meeting time of ${meetingTime.format('HH:mm')} ${time}. I will text you between 9 and 10 p.m. the evening before your flight with the meeting location details. The meeting sites are all within a 10-mile radius of ${selectedLocation}. If you don't hear from me by 10 p.m., please call me at (330) 633-3288. I am attaching a list of potential meeting sites. Please let me know that you received this email.\n\nThanks,\nDenny`);
+        setSubject(`Flight Appointment for ${selectedDate2.format('MMMM DD YYYY')}`);
+    }, [selectedDate2, time, sunriseMoment, sunsetMoment]);
+
+    console.log(emailBody);
     
     return (
         <div className="your-component-container">
@@ -289,7 +352,7 @@ useEffect(() => {
                     </div>
                     {visibilityOpen && (
                         <div className="menu-options" onClick={(e) => e.stopPropagation()}>
-                            <div onClick={() => handleVisibilityChange('Public')}>Public</div>
+                            <div onClick={() => handleVisibilityChange('Shared')}>Shared</div>
                             <div onClick={() => handleVisibilityChange('Private')}>Private</div>
                         </div>
                     )}
@@ -311,9 +374,7 @@ useEffect(() => {
                     <div className="current-date">{selectedDate2.format('MMMM DD YYYY')}</div>
                 </div>
 
-                <div className="menu-item">
-                    <button onClick={handleRefreshEmailBody}>Refresh Email Body</button>
-                </div>
+                
             </div>
 
             <div className="content-container">
@@ -404,16 +465,11 @@ useEffect(() => {
                 <hr />
                 <div className="email-container">
                     <h4>Email</h4>
-                    <textarea
-                        value={emailBody}
-                        onChange={handleEmailBodyChange}
-                        rows={10}
-                        cols={50}
-                    />
+                    <Email Recipients={Recipients} Subject={Subject} Body={emailBody} />
                 </div>
             </div>
             <div className="submit-button-container">
-                <button onClick={handleSubmit}>Submit</button>
+                <button onClick={handleSubmit}>Create Appointment</button>
                 <ToastContainer position="top-right" autoClose={3000} />
             </div>
         </div>
