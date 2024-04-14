@@ -81,21 +81,37 @@ function App() {
   }, [isLoggedIn]);
 
   async function googleSignIn() {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        scopes: 'https://www.googleapis.com/auth/calendar'
-      }
-    });
-    if (error) {
-      alert("Error logging in to Google provider with Supabase");
-      console.log(error);
-    } else {
-      setIsGoogleLoggedIn(true);
-      setIsLoggedIn(true);
-      localStorage.setItem('isGoogleLoggedIn', 'true');
+    try {
+        const { user, session, error: gmailError } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                scopes: [
+                    'https://www.googleapis.com/auth/gmail.send',
+                    'https://www.googleapis.com/auth/calendar'
+                ]
+            }
+        });
+
+        if (gmailError) {
+            alert("Error logging in to Google provider with Supabase for Gmail API");
+            console.error(gmailError);
+            return;
+        }
+
+        if (user && session) {
+            setIsGoogleLoggedIn(true);
+            localStorage.setItem('isGoogleLoggedIn', 'true');
+           
+        } else {
+            alert("Error logging in to Google provider with Supabase");
+        }
+    } catch (error) {
+        console.error("Error logging in to Google provider with Supabase:", error.message);
+        alert("Error logging in to Google provider with Supabase");
     }
-  };
+};
+
+
 
   async function googlesignOut() {
     await supabase.auth.signOut();
