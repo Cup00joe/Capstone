@@ -1,8 +1,11 @@
-import './Modal.css';
 import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 
+import './Modal.css';
+
+// Pop up message
 function Modal({ isActive, onCloseCallBack, direction=null, children }) {
+
     const [pointAt, setPointAt] = useState(null);
     const [modalPosition, setModalPosition] = useState({ top: undefined, left: undefined});
     const ref = useRef();
@@ -29,6 +32,7 @@ function Modal({ isActive, onCloseCallBack, direction=null, children }) {
         }
     }, []);
 
+    // Determine where to position pop up relative to object of interest
     const calculatePosition = () => {
 
         const parentRect = ref.current.parentElement.getBoundingClientRect();
@@ -50,6 +54,7 @@ function Modal({ isActive, onCloseCallBack, direction=null, children }) {
         setModalPosition({ top, left });
     }
 
+    // Open or close pop up
     useEffect(() => {
 
         if (isActive) {
@@ -62,13 +67,13 @@ function Modal({ isActive, onCloseCallBack, direction=null, children }) {
     return (
 
         <dialog 
-            ref={ ref }
+            ref={ref}
             className={`modal-container ${pointAt ? 'pointing' : ''} ${pointAt}`}
-            style={{ top: modalPosition.top, left: modalPosition.left }}
-            onCancel={ onCloseCallBack }
+            style={{top: modalPosition.top, left: modalPosition.left}}
+            onCancel={onCloseCallBack}
         >
             {direction !== null  && <div className={`pointer ${pointAt}`}></div>}
-            { children }
+            {children}
         </dialog>
     );
 }
