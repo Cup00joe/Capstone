@@ -16,7 +16,7 @@ function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTim
     const [timeOpen, setTimeOpen] = useState(false);
     const [allCustomerNames, setAllCustomerNames] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [perPage] = useState(5);
+    const [perPage] = useState(50);
     const [pressedButtonIndices, setPressedButtonIndices] = useState([]);
     const [selectedCustomerNames, setSelectedCustomerNames] = useState([]);
     const [allEmployeeNames, setAllEmployeeNames] = useState([]);
