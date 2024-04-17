@@ -14,8 +14,13 @@ import GoogleCalendarEventCreate from './component/GoogleCalendarEventCreate/Goo
 import Address from './component/Address/Address';
 import Form from './component/Form/Form';
 import Appointment from './component/Appointment/Appointment';
+import NavBar from './component/NavigationBar/NavigationBar';
+import CustomerList from './component/CustomerList/CustomerList';
 
 import './App.css';
+
+// Enum for the customer search service
+const optionName = Object.freeze({ Customers: 0, Form: 1 });
 
 function App() {
 
@@ -27,6 +32,8 @@ function App() {
     const [selectedLocation, setSelectedLocation] = useState('');
     const [coordinates, setCoordinates] = useState('');
     const [isDark, setDark] = useState(false);
+    const [option, setOption] = useState(optionName.Customers);
+    const [selectedCustomer, setSelectedCustomer] = useState(-1);
 
     const session = useSession();
     const supabase = useSupabaseClient();
@@ -38,7 +45,6 @@ function App() {
     const handleTimeChange = (newTime) => {
         setParentTime(newTime);
     };
-    console.log(parentTime);
 
     // 定义处理日出日落时间的函数
     const handleSunriseSunsetTime = (sunriseTime, sunsetTime) => {
@@ -46,6 +52,7 @@ function App() {
         setSunset(sunsetTime);
     };
 
+    // Manage dark-light mode and logins
     useEffect(() => {
 
         const storedIsLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -208,6 +215,22 @@ function App() {
                                 )}
                                 {service === 'Customer Information Form' && (
                                     <Form/>
+                                )}
+                                {service === 'Customer Information' && (
+                                    <>
+                                        <NavBar 
+                                            optionList={optionName} 
+                                            option={option} optionCallBack={setOption}
+                                        />
+                                        {option === optionName.Customers ? (
+                                            <CustomerList 
+                                                increment={3} 
+                                                optionCallBack={setOption} 
+                                                selectedCustomerCallBack={setSelectedCustomer}/>
+                                        ) : (
+                                            <Form targetCustomer={selectedCustomer}/>
+                                        )}
+                                    </>
                                 )}
                                 {service === 'Appointment' && (
                                     <div>
