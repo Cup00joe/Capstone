@@ -1,0 +1,11 @@
+.toggle-button {
+
+    background-color: var(--theme-constant-rev);
+    color: var(--theme-constant);
+}
+
+.toggle-button.inactive:hover,
+.toggle-button.active:hover {
+
+    background-color: var(--theme-gray-3);
+}

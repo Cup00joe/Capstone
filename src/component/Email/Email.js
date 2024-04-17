@@ -2,29 +2,35 @@
 import React, { useState, useEffect } from 'react';
 import { useSession } from '@supabase/auth-helpers-react';
 import { toast, ToastContainer } from 'react-toastify';
-import './Email.css';
 
 function EmailSender({ Recipients, Subject, Body }) {
+
     const session = useSession();
     const [recipients, setRecipients] = useState(Recipients || []);
     const [subject, setSubject] = useState(Subject);
     const [body, setBody] = useState(Body);
     const userId = session?.user?.email;
+
     useEffect(() => {
         // 每当 Body prop 发生变化时，更新 body 状态
         setBody(Body);
     }, [Body]);
+
     useEffect(() => {
         // 每当 Body prop 发生变化时，更新 body 状态
         setSubject(Subject);
     }, [Subject]);
+
     useEffect(() => {
         setRecipients(Recipients || []);
     }, [Recipients]);
+
     console.log(recipients);
     console.log(subject);
     console.log(body);
+
     const sendEmail = async () => {
+
         if (!session) {
             alert('Please login to send email.');
             return;
@@ -55,18 +61,22 @@ function EmailSender({ Recipients, Subject, Body }) {
             toast.error(`Error sending email. Please try again later.`);
         }
     };
+
     const handleRecipientChange = (e) => {
         const value = e.target.value;
         // 用逗号或分号分割收件人，移除多余空格
         const recipientsList = value.split(/[;,]+/).map(email => email.trim());
         setRecipients(recipientsList);
     };
+
     const handleSubjectChange = (e) => {
         setSubject(e.target.value);
     };
+
     const handleBodyChange = (e) => {
         setBody(e.target.value);
     };
+    
     return (
         
         <div>
@@ -83,7 +93,7 @@ function EmailSender({ Recipients, Subject, Body }) {
             <label htmlFor="body">Body:</label>
                 <textarea id="body" value={body} onChange={handleBodyChange} />
             </div>
-            <button className="Email-button" onClick={sendEmail}>Send Email</button>
+            <button onClick={sendEmail}>Send Email</button>
             <ToastContainer position="top-right" autoClose={3000} />
         </div>
     );

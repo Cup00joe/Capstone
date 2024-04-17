@@ -16,7 +16,7 @@ function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTim
     const [timeOpen, setTimeOpen] = useState(false);
     const [allCustomerNames, setAllCustomerNames] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [perPage] = useState(50);
+    const [perPage] = useState(5);
     const [pressedButtonIndices, setPressedButtonIndices] = useState([]);
     const [selectedCustomerNames, setSelectedCustomerNames] = useState([]);
     const [allEmployeeNames, setAllEmployeeNames] = useState([]);
@@ -347,8 +347,13 @@ function YourComponent({ selectedDate2, sunrise, sunset, selectedLocation, onTim
             console.log('Submission successful!');
             toast.success('Submission successful!');
         } catch (error) {
-            console.error('Error submitting data:', error.message);
-            toast.error(`Error submitting data: ${error.message}`);
+            if (error.message == 'duplicate key value violates unique constraint "EmployeeAppointment_pkey"') {
+            console.error('Error submitting data: There are duplicate employee appointments');
+            toast.error(`Error submitting data: There are duplicate employee appointments`);
+            } else {
+                console.error('Error submitting data:',error.message);
+                toast.error(`Error submitting data: ${error.message}`);
+            }
         }
     };
 
